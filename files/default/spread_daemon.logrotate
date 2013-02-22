@@ -1,0 +1,13 @@
+/opt/vertica/log/spread*.log {
+# There should be a line above like this: /opt/vertica/log/spread*.log {
+    # rotate weekly
+    weekly
+    # and keep for 52 weeks
+    rotate 52
+    # no complaining if vertica did not start yet
+    missingok
+    # compress log after rotation
+    compress
+    # rotate by copying it aside and truncating
+    copytruncate
+}

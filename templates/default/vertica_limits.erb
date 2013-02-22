@@ -1,0 +1,7 @@
+root    -       nofile  65536
+*       -       nofile  65536
+root    -       fsize   unlimited
+*       -       fsize   unlimited
+root    -       nproc   <%= node[:memory][:total].to_i/1024 %>
+*       -       nproc   <%= node[:memory][:total].to_i/1024 %>
+dbadmin -       nice    0

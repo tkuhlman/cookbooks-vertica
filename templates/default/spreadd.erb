@@ -1,0 +1,9 @@
+SPREADBRAND=vertica
+SPREADARGS="-c /opt/${SPREADBRAND}/config/vspread.conf"
+SPREADPATH=/opt/$SPREADBRAND/spread/sbin
+DAEMONIZEPATH=/opt/$SPREADBRAND/sbin
+DAEMONIZEOUTPUTPATH=/var/log/spreadd.log
+SP_PORT=4803
+SP_USER=<%= @user %>
+DAEMONPIDFILE=/var/run/spread.pid
+SPREADARGS="-n N<%= @mangled_ip %> ${SPREADARGS}"

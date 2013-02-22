@@ -1,0 +1,13 @@
+Spread_Segment <%= @broadcast %>:4803 {
+<% @ip_list.each do |ip| -%>
+  N<%= ip.split('.').map { |octet| "%03d" % octet }.join %>  <%= ip %> {
+    <%= ip %>
+    127.0.0.1
+  }
+<% end -%>
+}
+EventLogFile = /dev/null
+EventTimeStamp = "[%a %d %b %Y %H:%M:%S]"
+DaemonUser = <%= @user %>
+DaemonGroup = <%= @group %>
+DebugFlags = { EXIT }
