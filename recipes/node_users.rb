@@ -76,3 +76,11 @@ cookbook_file "/opt/vertica/config/users/#{node['vertica']['dbadmin_user']}/inst
   mode "775"
 end
 
+# The startup script for the vertica agent has a bug where it starts as the dbadmin user but with its home set to /root
+# It then fails in a script and is unable to pump some data to the mc, the work around is to make /root readable by dbadmin
+directory "/root" do
+  action :create
+  owner 'root'
+  group 'root'
+  mode "775"
+end
