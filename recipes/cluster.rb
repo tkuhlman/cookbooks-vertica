@@ -5,7 +5,8 @@ vconfig_dir = '/opt/vertica/config' #This is set by the vertica package
 
 #Pull cluster node information, used by many resources in this recipe
 node_dbag = normalize(get_data_bag_item("vertica", node['vertica']['cluster_name'] + "_nodes"), {
-  :nodes => { :required => true, :typeof => Hash }, :broadcast => { :required => true, :typeof => String }
+  :nodes => { :required => true, :typeof => Hash }, :broadcast => { :required => true, :typeof => String },
+  :netmask => { :required => true, :typeof => String }, :network => { :required => true, :typeof => String }
 })
 nodes = node_dbag['nodes']
 
@@ -18,10 +19,6 @@ nodes.each do |fqdn, ip|
     aliases [ fqdn.split('.')[0] ]
   end
 end
-
-# TODO: Setup of the private network, I have yet to implement as the dev boxes are waiting on DC-1945 to hook up their 2nd nics
-# It is assumed that eth1 is used on each node in attributes/ufw.rb, I can probably use the interfaces cookbook for this
-
 
 ## Config file setup
 template "#{vconfig_dir}/admintools.conf" do
@@ -52,9 +49,9 @@ template "#{vconfig_dir}/vspread.conf" do
   )
 end
 
-#Figure out what box in the cluster this is, ie which ip is in both ohai and the cluster list
-all_local_ips = node['network']['interfaces'].values.map { |info| info['addresses'].keys }.flatten 
-local_ip = (nodes.values & all_local_ips)[0]
+# assumes the cluster interface name contains the hostname
+local_cluster_name = nodes.keys.select { |node_name|  node_name.include? node['hostname'] }[0]
+local_ip = nodes[local_cluster_name]
 template "/etc/spreadd" do
   action :create
   owner 'root'
@@ -65,5 +62,39 @@ template "/etc/spreadd" do
     :mangled_ip => local_ip.split('.').map { |octet| "%03d" % octet }.join,
     :user => node['vertica']['spread_user']
   )
+end
+
+# Setup eth1 as the cluster interface, first setup interfaces.d then eth1
+directory "/etc/network/interfaces.d" do
+  action :create
+  owner 'root'
+  group 'root'
+  mode '775'
+end
+
+execute "echo 'source /etc/network/interfaces.d/*' >> /etc/network/interfaces" do
+  action :run
+  user 'root'
+  not_if "grep 'source /etc/network/interfaces.d/*' /etc/network/interfaces"
+end
+
+execute 'ifup eth1' do
+  action :nothing
+  user 'root'
+end
+
+template "/etc/network/interfaces.d/vertica_cluster" do
+  action :create
+  owner 'root'
+  group 'root'
+  mode "644"
+  source "cluster_interface.erb"
+  variables(
+    :ip => local_ip,
+    :broadcast => node_dbag['broadcast'],
+    :netmask => node_dbag['netmask'],
+    :network => node_dbag['network']
+  )
+  notifies :run, "execute[ifup eth1]"
 end
 

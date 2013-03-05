@@ -11,6 +11,9 @@ All entries into this cookbook should be via the default recipe, others are for 
 
 Assumptions:
   - The nodes are dual homed with eth1 being the cluster interface. Proper UFW setup depends on this.
+  - The nodes have at two disks setup.
+    - The first will include the OS and catalog and is expected to be setup on OS install.
+    - The second is defined in an attribute and will be setup by chef for use as the data directory.
   - This cookbook is written in a way that is quite specific to HP Cloud, relying on various features/setup of basenode, including:
     - hpcloud ufw setup
     - hpcloud system cookbook which defines kernel boot params used by grub
