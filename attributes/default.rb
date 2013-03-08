@@ -14,4 +14,4 @@ node.default['vertica']['catalog_dir'] = '/var/vertica/catalog'
 node.default['vertica']['data_dir'] = '/var/vertica/data'
 node.default['vertica']['data_dev'] = '/dev/sdb1'
 # Package version
-node.default['version_pins']['vertica']['vertica']['version'] = '6.1.0-0'
+node.default['version_pins']['vertica']['vertica']['version'] = '6.1.1-0'
