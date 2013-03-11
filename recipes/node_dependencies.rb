@@ -37,3 +37,11 @@ bash 'su_pam_limits' do
   not_if "grep '^session\s*required\s*pam_limits.so' /etc/pam.d/su"
 end
 
+# Setup the LANG variable
+file '/etc/profile.d/vertica_lang.sh' do
+  action :create
+  owner 'root'
+  group 'root'
+  mode "644"
+  content 'export LANG="en_US.UTF-8"'
+end

@@ -71,7 +71,7 @@ end
 cookbook_file "/opt/vertica/config/users/#{node['vertica']['dbadmin_user']}/installed.dat" do
   action :create_if_missing
   source "installed.dat"
-  owner 'root'
+  owner node['vertica']['dbadmin_user']
   group 'root'
   mode "775"
 end

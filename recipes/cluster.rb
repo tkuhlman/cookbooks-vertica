@@ -25,7 +25,7 @@ template "#{vconfig_dir}/admintools.conf" do
   action :create_if_missing #This file changes with each new db so I must only do the initial setup
   owner node['vertica']['dbadmin_user']
   group node['vertica']['dbadmin_group']
-  mode "644"
+  mode "660"
   source "admintools.conf.erb"
   variables(
     :nodes => nodes,
