@@ -8,6 +8,10 @@ package "vertica" do
   version pinned_version('vertica')
 end
 
+package "vertica-r-lang" do
+  action :install
+end
+
 # Static configuration common to all nodes in any cluster
 include_recipe 'vertica::node_setup'
 

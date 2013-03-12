@@ -38,10 +38,10 @@ bash 'su_pam_limits' do
 end
 
 # Setup the LANG variable
-file '/etc/profile.d/vertica_lang.sh' do
+file '/etc/profile.d/vertica_node.sh' do
   action :create
   owner 'root'
   group 'root'
   mode "644"
-  content 'export LANG="en_US.UTF-8"'
+  content "export LANG='en_US.UTF-8'\nexport R_HOME=/opt/vertica/R\n"
 end
