@@ -1,11 +1,23 @@
-Spread_Segment <%= @broadcast %>:4803 {
-<% @ip_list.each do |ip| -%>
-  N<%= ip.split('.').map { |octet| "%03d" % octet }.join %>  <%= ip %> {
-    <%= ip %>
-    127.0.0.1
-  }
-<% end -%>
+<% #Oranize nodes into broadcast groups
+bgroups = {}
+@nodes.each_value do |value|
+  if bgroups.has_key? value['broadcast']
+    bgroups[value['broadcast']].push(value['ip']) 
+  else
+    bgroups[value['broadcast']] = [value['ip']]
+  end
+end
+-%>
+<% bgroups.each do |broadcast, ips| -%>
+Spread_Segment <%= broadcast %>:4803 {
+  <% ips.each do |ip| -%>
+    N<%= ip.split('.').map { |octet| "%03d" % octet }.join %>  <%= ip %> {
+      <%= ip %>
+      127.0.0.1
+    }
+  <% end -%>
 }
+<% end -%>
 EventLogFile = /dev/null
 EventTimeStamp = "[%a %d %b %Y %H:%M:%S]"
 DaemonUser = <%= @user %>

@@ -1,15 +1,14 @@
 [Configuration]
-install_opts = ['-Y', '-T', '-s', '<%= @nodes.keys.join(',') %>', '-r', '/tmp/vertica_6.1.1-0_amd64.deb', '-d', '/var/vertica/data']
+install_opts = ['-Y', '-T', '-s', '<%= @hosts.join(',') %>', '-r', '/tmp/vertica_6.1.1-0_amd64.deb', '-d', '/var/vertica/data']
 default_base = /home/dbadmin
 show_hostnames = False
 format = 3
 
-<% sorted_nodes = @nodes.values.sort -%>
 [Cluster]
-hosts = <%= sorted_nodes.join(',') %>
+hosts = <%= ips.join(',') %>
 spread_hosts = 
 
 [Nodes]
-<% sorted_nodes.each_index do |index| -%>
-node000<%= index + 1 %> = <%= sorted_nodes[index] %>,<%= @catalog_dir %>,<%= @data_dir %>
+<% ips.each_index do |index| -%>
+node000<%= index + 1 %> = <%= ips[index] %>,<%= @catalog_dir %>,<%= @data_dir %>
 <% end -%>
