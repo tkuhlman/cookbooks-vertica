@@ -38,7 +38,6 @@ template "#{vconfig_dir}/admintools.conf" do
   mode "660"
   source "admintools.conf.erb"
   variables(
-    :hosts => nodes,
     :ips => ips,
     :data_dir => node['vertica']['data_dir'],
     :catalog_dir => node['vertica']['catalog_dir']
