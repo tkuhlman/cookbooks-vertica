@@ -10,7 +10,8 @@ nodes = normalize(get_data_bag_item("vertica", node['vertica']['cluster_name'] +
       :ip => { :required => true, :typeof => String }, 
       :broadcast => { :required => true, :typeof => String },
       :netmask => { :required => true, :typeof => String },
-      :network => { :required => true, :typeof => String }
+      :network => { :required => true, :typeof => String },
+      :routes => { :typeof => Array, :default => [] }
       }
     } }
   }
@@ -102,7 +103,8 @@ template "/etc/network/interfaces.d/vertica_cluster" do
     :ip => local_net['ip'],
     :broadcast => local_net['broadcast'],
     :netmask => local_net['netmask'],
-    :network => local_net['network']
+    :network => local_net['network'],
+    :routes => local_net['routes']
   )
   notifies :run, "execute[ifup eth1]"
 end

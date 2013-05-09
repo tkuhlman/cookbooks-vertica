@@ -4,5 +4,6 @@ iface eth1 inet static
   netmask <%= @netmask %>
   network <%= @network %>
   broadcast <%= @broadcast %>
-
-
+<% @routes.each do |route| -%>
+  up <%= route %>
+<% end -%>

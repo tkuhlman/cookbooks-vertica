@@ -27,7 +27,7 @@ Assumptions:
 Required setup:
   - data bag items in the vertica data bag that are specific to both the cluster and location.
     - All of these follow the pattern `<cluster name>_<databag item name>_<location specifier>`
-    - nodes - lists nodes in the cluster
+    - nodes - lists nodes in the cluster and the secondary interface settings
     - license - An edb with the license key
     - agent_ssl - An edb with the agent public and private keys
   - Ssh setup for the dbadmin user, including:
@@ -42,5 +42,6 @@ Required setup:
 
 #Data Bags
 All of the below data bags can be split by location according to the get_data* functions which are part of hp_common_functions.
-  - Each cluster can have a nodes data bag which should contain a nodes attribute which is a hash where the key is
-    the fqdn and the value the ip.
+  - Each cluster must have a nodes data bag which should contain a nodes attribute which is a hash where the key is
+    the fqdn and the value the network information for the secondary interface. If the secondary interfaces are in different
+    vlans route information must be provided.
