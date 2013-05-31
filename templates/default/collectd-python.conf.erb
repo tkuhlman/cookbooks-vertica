@@ -1,0 +1,13 @@
+<LoadPlugin python>
+  Globals true
+</LoadPlugin>
+<Plugin python>
+  ModulePath "/usr/bin"
+  LogTraces false
+  Interactive false
+  Import collectd_vertica
+
+  <Module collectd_vertica>
+    DSN "<%= node['vertica']['monitoring_dsn'] %>"
+  </Module>
+</Plugin>

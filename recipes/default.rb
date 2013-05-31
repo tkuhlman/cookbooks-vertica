@@ -34,3 +34,5 @@ service 'verticad' do
   action :enable
   supports :status => true, :restart => true
 end
+
+include_recipe 'vertica::monitor'
