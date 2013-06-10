@@ -47,6 +47,15 @@ default[:icinga][:check_params][:spread_daemon] = {
   :command => "/usr/lib/nagios/plugins/check_procs -c 1: -C spread"
 }
 
+#Graphite endpoint is the opposite region for uswest/useast
+if node[:domain] == 'uswest.hpcloud.net'
+  graphite = 'graphite.useast.hpcloud.net'
+elsif node[:domain] == 'useast.hpcloud.net' 
+  graphite = 'graphite.uswest.hpcloud.net'
+else
+  graphite = 'graphite.' + node[:domain]
+end
+
 #Thresholds
 default[:icinga][:service_checks][:vertica_request_queue_depth] = {
   :service_description => "vertica_request_queue_depth",
@@ -59,7 +68,7 @@ default[:icinga][:check_params][:vertica_request_queue_depth] = {
   :user => "nagios",
   :hostgroups => ["role[Vertica-Node]"],
   :check_interval => 3, #For passive services this is minutes
-  :command => "/usr/bin/check_graphite -n yes -u http://graphite.#{node[:domain]}/render/?target=Monitoring.#{node[:fqdn].gsub('.', '_')}.vertica.vertica-request_queue_depth-gauge--value.~&from-5minutes&rawData=true -w 5 -c 10"
+  :command => "/usr/bin/check_graphite -n yes -u http://#{graphite}/render/?target=Monitoring.#{node[:fqdn].gsub('.', '_')}.vertica.vertica-request_queue_depth-gauge--value.~&from-5minutes&rawData=true -w 5 -c 10"
 }
 
 default[:icinga][:service_checks][:vertica_sessions] = {
@@ -74,7 +83,7 @@ default[:icinga][:check_params][:vertica_sessions] = {
   :hostgroups => ["role[Vertica-Node]"],
   :check_interval => 3, #For passive services this is minutes
   # The nagios plugin doesn't fully escape so the \\ before an %2C is needed
-  :command => "/usr/bin/check_graphite -n yes -u http://graphite.#{node[:domain]}/render/?target=sumSeries(Monitoring.#{node[:fqdn].gsub('.', '_')}.vertica.vertica-active_system_session_count-gauge--value.~\\%2CMonitoring.#{node[:fqdn].gsub('.', '_')}.vertica.vertica-active_user_session_count-gauge--value.~)&from-5minutes&rawData=true -w 100 -c 150"
+  :command => "/usr/bin/check_graphite -n yes -u http://#{graphite}/render/?target=sumSeries(Monitoring.#{node[:fqdn].gsub('.', '_')}.vertica.vertica-active_system_session_count-gauge--value.~\\%2CMonitoring.#{node[:fqdn].gsub('.', '_')}.vertica.vertica-active_user_session_count-gauge--value.~)&from-5minutes&rawData=true -w 100 -c 150"
 }
 
 default[:icinga][:service_checks][:vertica_percent_disk_free] = {
@@ -89,7 +98,7 @@ default[:icinga][:check_params][:vertica_percent_disk_free] = {
   :hostgroups => ["role[Vertica-Node]"],
   :check_interval => 60, #For passive services this is minutes
   # The nagios plugin doesn't fully escape so the \\ before an %2C is needed
-  :command => "/usr/bin/check_graphite -n yes -u http://graphite.#{node[:domain]}/render/?target=scale(divideSeries(Monitoring.#{node[:fqdn].gsub('.', '_')}.vertica.vertica-disk_space_used_mb-gauge--value.~\\%2CsumSeries(Monitoring.#{node[:fqdn].gsub('.', '_')}.vertica.vertica-disk_space_used_mb-gauge--value.~\\%2CMonitoring.#{node[:fqdn].gsub('.', '_')}.vertica.vertica-disk_space_free_mb-gauge--value.~))\\%2C100)&from-60minutes&rawData=true -w 60 -c 75"
+  :command => "/usr/bin/check_graphite -n yes -u http://#{graphite}/render/?target=scale(divideSeries(Monitoring.#{node[:fqdn].gsub('.', '_')}.vertica.vertica-disk_space_used_mb-gauge--value.~\\%2CsumSeries(Monitoring.#{node[:fqdn].gsub('.', '_')}.vertica.vertica-disk_space_used_mb-gauge--value.~\\%2CMonitoring.#{node[:fqdn].gsub('.', '_')}.vertica.vertica-disk_space_free_mb-gauge--value.~))\\%2C100)&from-60minutes&rawData=true -w 60 -c 75"
 }
 
 #Enable passive checks
