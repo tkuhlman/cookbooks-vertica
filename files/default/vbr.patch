@@ -1,0 +1,11 @@
+--- vbr.py      2013-06-13 21:00:07.325094897 +0000
++++ vbr-patched.py      2013-06-13 21:07:51.455283265 +0000
+@@ -734,7 +734,7 @@
+     rsyncBin = os.path.abspath(g["verticaBinDir"]+'/rsync')
+     if not os.path.exists(rsyncBin):
+         rsyncBin = 'rsync'
+-    rsyncOptions = [rsyncBin, '--stats', '--whole-file']
++    rsyncOptions = [rsyncBin, '--stats', '--whole-file', '-O']
+     if g["dryrun"]:
+         # no need to include '--itemized-changes'
+         # .txt should be excluded when doing dry-run as it contains timestamp and is always different

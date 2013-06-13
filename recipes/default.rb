@@ -36,3 +36,4 @@ service 'verticad' do
 end
 
 include_recipe 'vertica::monitor'
+include_recipe 'vertica::backup'
