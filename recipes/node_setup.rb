@@ -70,7 +70,7 @@ file "#{vconfig_dir}/share/license.key" do
   content license_key
 end
 
-## SSL key generation
+## SSL key
 # The process for creation of the key is in the ssl_key_gen function in /opt/vertica/bin/verticaInstall.py
 # After the install script the pem and key file are only on the primary, I distribute to all boxes
 agent_ssl = normalize(get_data_bag_item("vertica", node['vertica']['cluster_name'] + "_agent_ssl", { :encrypted => true}), {
@@ -99,4 +99,28 @@ file "#{vconfig_dir}/share/agent.pem" do
   group node['vertica']['dbadmin_group']
   mode "400"
   content agent_cert + agent_key
+end
+
+# SOM DB ssl cert, this is the cert clients see when connecting, the certs for each zone come from the security team
+# Vertica actually requires it in the db specific dir but it is not created until after the db so I put them in the root
+# catalog dir and link later after db creation
+server_ssl = normalize(get_data_bag_item("vertica", node['vertica']['cluster_name'] + "_server_ssl", { :encrypted => true}), {
+  :key => { :required => true, :typeof => String }, :cert => { :required => true, :typeof => String }
+})
+server_key = server_ssl['key']
+server_cert = server_ssl['cert']
+
+file "#{node['vertica']['catalog_dir']}/server.key" do
+  action :create
+  owner node['vertica']['dbadmin_user']
+  group node['vertica']['dbadmin_group']
+  mode "400"
+  content server_key
+end
+file "#{node['vertica']['catalog_dir']}/server.crt" do
+  action :create
+  owner node['vertica']['dbadmin_user']
+  group node['vertica']['dbadmin_group']
+  mode "444"
+  content server_cert
 end
