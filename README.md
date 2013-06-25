@@ -23,6 +23,7 @@ Assumptions:
     properly in a situation of adding/removing nodes is not trivial. Additionally given the hardware requirements of
     vertica this is very unlikely so I have stuck with the simpler setup of specifying nodes in a data bag and assuming
     all nodes have the Vertica-Node role applied.
+  - The backup template currently assumes 5 nodes though it could be modified to be more flexible.
 
 Required setup:
   - data bag items in the vertica data bag that are specific to both the cluster and location.
