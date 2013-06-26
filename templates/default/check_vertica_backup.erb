@@ -35,10 +35,10 @@ def main(argv=None):
 
   try:
     with cloudfuse_mount():
-      subprocess.check_output("%s -C '%s --config-file %s --task backup' -S 'vertica_backup' -H %s" % (nsca_wrapper, vbr_bin, vbr_config, fqdn), stderr=subprocess.STDOUT)
-  except CalledProcessError, cpe:
+      subprocess.check_output("%s -C '%s --config-file %s --task backup' -S 'vertica_backup' -H %s" % (nsca_wrapper, vbr_bin, vbr_config, fqdn), stderr=subprocess.STDOUT, shell=True)
+  except subprocess.CalledProcessError, cpe:
     exit_status = cpe.returncode
-    backup_output = output
+    backup_output = cpe.output
     
   stop = time.time()
   duration = (stop - start) / 60

@@ -39,8 +39,9 @@ template "/root/.cloudfuse" do #It seems the mount command still looks for it in
   )
 end
 
+# The backup job mounts/unmounts this just puts it in fstab.
 mount node[:vertica][:cloudfuse_dir] do
-  action [ :mount, :enable]
+  action :enable
   device 'cloudfuse'
   fstype 'fuse'
   options "defaults,user"
@@ -69,7 +70,7 @@ end
 
 execute 'patch_vbr' do
   action :nothing
-  command "patch -p0 -o vbr-patched.py vbr.py vbr.patch; chmod +x vbr-patched.py"
+  command "patch -p0 -o vbr-patched.py vbr.py vbr.patch; chmod 755 vbr-patched.py"
   cwd "/opt/vertica/bin"
 end
 
@@ -93,6 +94,13 @@ template "/usr/local/bin/check_vertica_backup" do
     :warn => node[:vertica][:backup_warn_threshold],
     :crit => node[:vertica][:backup_crit_threshold] 
   )
+end
+
+# In order for the dbadmin_user to run the backup job and report to icinga it must be in the nagios group
+group 'nagios' do
+  action :modify
+  members node['vertica']['dbadmin_user']
+  append true
 end
 
 # The cronjob, only runs on one machine, this is not setup via the standard mechanism for nsca so I can specify a specific time
