@@ -35,7 +35,13 @@ def main(argv=None):
 
   try:
     with cloudfuse_mount():
-      subprocess.check_output("%s -C '%s --config-file %s --task backup' -S 'vertica_backup' -H %s" % (nsca_wrapper, vbr_bin, vbr_config, fqdn), stderr=subprocess.STDOUT, shell=True)
+      output = subprocess.check_output("%s -C '%s --config-file %s --task backup' -S 'vertica_backup' -H %s" % (nsca_wrapper, vbr_bin, vbr_config, fqdn), stderr=subprocess.STDOUT, shell=True)
+      print output
+      # Turns out vbr is not always good about a failed exit code
+      for line in output.splitlines():
+        if line == 'backup failed!':
+          exit_status = 2
+          backup_output = output
   except subprocess.CalledProcessError, cpe:
     exit_status = cpe.returncode
     backup_output = cpe.output

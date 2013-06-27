@@ -1,5 +1,5 @@
 [Misc]
-snapshotName = <%= node[:domain] %>_<%= @dbname %>
+snapshotName = <%= node[:domain].gsub('.', '_') %>_<%= @dbname %>
 verticaConfig = False
 restorePointLimit = 3
 tempDir = /tmp/vbr
