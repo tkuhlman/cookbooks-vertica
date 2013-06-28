@@ -15,9 +15,7 @@ import time
 # Various settings
 backup_dir = "<%= @backup_dir %>"
 vbr_config = "<%= @config_file %>"
-nsca_wrapper = "/usr/local/bin/nsca_wrapper" #Provided by the monitoring roles
 vbr_bin = "/opt/vertica/bin/vbr-patched.py"
-fqdn = "<%= node[:fqdn] %>"
 warn = <%= @warn %>
 crit = <%= @crit %>
 
@@ -39,7 +37,7 @@ def main(argv=None):
 
   try:
     with cloudfuse_mount():
-      output = subprocess.check_output("%s -C '%s --config-file %s --task backup' -S 'vertica_backup' -H %s" % (nsca_wrapper, vbr_bin, vbr_config, fqdn), stderr=subprocess.STDOUT, shell=True)
+      output = subprocess.check_output("%s --config-file %s --task backup" % (vbr_bin, vbr_config), stderr=subprocess.STDOUT, shell=True)
       print output
       # Turns out vbr is not always good about a failed exit code
       for line in output.splitlines():

@@ -5,7 +5,7 @@
      if not os.path.exists(rsyncBin):
          rsyncBin = 'rsync'
 -    rsyncOptions = [rsyncBin, '--stats', '--whole-file']
-+    rsyncOptions = [rsyncBin, '--stats', '--whole-file', '-O']
++    rsyncOptions = [rsyncBin, '--stats', '--whole-file', '-O', '--size-only']
      if g["dryrun"]:
          # no need to include '--itemized-changes'
          # .txt should be excluded when doing dry-run as it contains timestamp and is always different

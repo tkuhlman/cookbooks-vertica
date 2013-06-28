@@ -44,7 +44,7 @@ mount node[:vertica][:cloudfuse_dir] do
   action :enable
   device 'cloudfuse'
   fstype 'fuse'
-  options "defaults,user"
+  options "defaults,noauto,user"
 end
 
 # The backup config
@@ -105,12 +105,21 @@ end
 
 # The cronjob, only runs on one machine, this is not setup via the standard mechanism for nsca so I can specify a specific time
 # but it still relies on monitorings nsca_wrapper and the params match the icinga setup in attributes/backup.rb
+nsca_wrapper = "/usr/local/bin/nsca_wrapper" #Provided by the monitoring roles
 if node[:vertica][:backups_enabled]
   cron 'vertica_backup' do
     action :create
     user node['vertica']['dbadmin_user']
-    hour "7"
+    hour "5"
     minute "12"
-    command "/usr/local/bin/check_vertica_backup"
+    command "#{nsca_wrapper} -C /usr/local/bin/check_vertica_backup -S 'vertica_backup' -H #{node[:fqdn]}"
+  end
+else
+  cron 'vertica_backup' do
+    action :create
+    user node['vertica']['dbadmin_user']
+    hour "5"
+    minute "12"
+    command "#{nsca_wrapper} -C 'echo Backup disabled on this node.' -S 'vertica_backup' -H #{node[:fqdn]}"
   end
 end

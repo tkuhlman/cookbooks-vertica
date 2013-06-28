@@ -3,7 +3,7 @@ snapshotName = <%= node[:domain].gsub('.', '_') %>_<%= @dbname %>
 verticaConfig = False
 restorePointLimit = 3
 tempDir = /tmp/vbr
-retryCount = 1
+retryCount = 0
 retryDelay = 1
 
 [Database]
