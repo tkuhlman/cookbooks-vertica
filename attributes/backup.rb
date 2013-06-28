@@ -8,8 +8,6 @@ else
 end
 
 if node[:vertica][:backups_enabled]
-  # The actual cron job to do the backup is setup in the backup recipe this just sets up the passive check on the server side
-  # It is done this way as there is no way to specify a specific time with these attributes
   default[:icinga][:service_checks][:vertica_backup] = {
     :service_description => "vertica_backup",
     :use => "generic-passive-service",
@@ -17,6 +15,13 @@ if node[:vertica][:backups_enabled]
     :max_check_attempts => 1,
     :servicegroups => ["SOM"],
     :contact_groups => ["som_team"]
+  }
+
+  # The actual cron job to do the backup is setup in the backup recipe this just sets up the passive check on the server side
+  # It is done this way as there is no way to specify a specific time with these attributes, the attributes here are only
+  # to prevent the icinga server from breaking
+  default[:icinga][:check_params][:backups_enabled] = {
+    :hostgroups => ["role[Vertica-Node]"]
   }
 
   default[:icinga][:client][:passive_checks_enabled] = {
