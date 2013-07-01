@@ -7,6 +7,7 @@
     cloudfuse disk setup.
 """
 
+import os
 import subprocess
 import sys
 import time
@@ -32,6 +33,9 @@ def main(argv=None):
   start = time.time()
   exit_status = 0
   backup_output = None
+
+  # Set the environment vbr needs
+  os.environ['LANG'] = 'en_US.UTF-8'
 
   try:
     with cloudfuse_mount():
