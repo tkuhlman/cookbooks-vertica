@@ -1,13 +1,3 @@
-# The backup runs on one machine and pulls from all 5 so that snapshot is consistent across all boxes.
-# I can't read a databag in an attributes file but need this set to the icinga attributes can be set so I base
-# which one on hostname. It also has the affect of excluding backups in RNDD
-if node[:hostname]  =~ /az2-vertica0002/
-  node[:vertica][:backups_enabled] = true
-else
-  node[:vertica][:backups_enabled] = false
-end
-
-# Though the backup runs only on 1 box the icinga chef setup used in hpcloud requires it to be defined for the entire role
 default[:icinga][:service_checks][:vertica_backup] = {
   :service_description => "vertica_backup",
   :use => "generic-passive-service",

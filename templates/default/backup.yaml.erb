@@ -1,0 +1,8 @@
+backupdir: <%= node[:vertica][:cloudfuse_dir] %>
+dbname: <%= @dbname %>
+DSN: DSN=monitor
+warning: <%= node[:vertica][:backup_warn_threshold] %>
+critical: <%= node[:vertica][:backup_crit_threshold]  %>
+log_dir: /opt/vertica/log
+data_dir: <%= node['vertica']['data_dir'] %>
+catalog_dir: <%= node['vertica']['catalog_dir'] %>
