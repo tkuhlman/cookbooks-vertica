@@ -24,6 +24,7 @@ directory node[:vertica][:cloudfuse_dir] do
   owner 'root'
   group node['vertica']['dbadmin_group']
   mode '775'
+  not_if "mount |grep /mnt/swift" #When cloudfuse mounts the dir not even root can read it and so the checks to verify fail
 end
 
 template "/root/.cloudfuse" do #It seems the mount command still looks for it in /root though it is run by dbadmin
