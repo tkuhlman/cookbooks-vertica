@@ -14,8 +14,8 @@ default[:icinga][:check_params][:vertica_backup] = {
 }
 
 # Thresholds on the backup time in minutes
-node.default[:vertica][:backup_warn_threshold] = '240'
-node.default[:vertica][:backup_crit_threshold] = '360'
+node.default[:vertica][:backup_warn_threshold] = '480'
+node.default[:vertica][:backup_crit_threshold] = '720'
 
 # Other attributes
 node.default[:vertica][:cloudfuse_dir] = '/mnt/swift'

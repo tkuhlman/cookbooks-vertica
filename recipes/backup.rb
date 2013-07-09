@@ -75,6 +75,6 @@ cron 'vertica_backup' do
   action :create
   user node['vertica']['dbadmin_user']
   hour "5"
-  minute rand(0..60)
+  minute node[:fqdn].hash % 60
   command "#{nsca_wrapper} -C '/usr/bin/vertica_backup.py /opt/vertica/config/#{creds[:dbname]}_backup.yaml' -S 'vertica_backup' -H #{node[:fqdn]}"
 end
