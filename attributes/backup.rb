@@ -1,7 +1,7 @@
 default[:icinga][:service_checks][:vertica_backup] = {
   :service_description => "vertica_backup",
   :use => "generic-passive-service",
-  :freshness_threshold => 86500, #A bit over 1 day to allow for fluctuations in backup time
+  :freshness_threshold => 108000, #30 hours to allow for fluctuations in backup time
   :max_check_attempts => 1,
   :servicegroups => ["SOM"],
   :contact_groups => ["som_team"]
@@ -14,8 +14,8 @@ default[:icinga][:check_params][:vertica_backup] = {
 }
 
 # Thresholds on the backup time in minutes
-node.default[:vertica][:backup_warn_threshold] = '480'
-node.default[:vertica][:backup_crit_threshold] = '720'
+node.default[:vertica][:backup_warn_threshold] = '960'
+node.default[:vertica][:backup_crit_threshold] = '1200'
 
 # Other attributes
 node.default[:vertica][:cloudfuse_dir] = '/mnt/swift'
