@@ -2,19 +2,40 @@
 # The config and setup goes on each vertica node but only one is actually activated to run the job, it starts the job on the others
 # This is so the backup is consistent across all 5 nodes and is a core assumption of the vbr tool
 
-# The backup script and pyodbc dsn are added as part of the monitor recipe
-include_recipe 'vertica::monitor'
+# The backup script is in this package with
+package 'sommon' do
+  action :upgrade
+end
 
-# Pull the edb
+## Pull the data bags
 creds = normalize(get_data_bag_item("vertica", "#{node['vertica']['cluster_name']}_backup_credentials", { :encrypted => true}), {
-  :url => { :required => true, :typeof => String },
-  :swift_user => { :required => true, :typeof => String },
-  :swift_tenant => { :required => true, :typeof => String },
+  :dbname => { :required => true, :typeof => String },
+  :dbpass => { :required => true, :typeof => String },
+  :dbuser => { :required => true, :typeof => String },
   :swift_key => { :required => true, :typeof => String },
-  :dbname => { :required => true, :typeof => String }
-})
+  :swift_tenant => { :required => true, :typeof => String },
+  :swift_user => { :required => true, :typeof => String },
+  :url => { :required => true, :typeof => String }
 
-# The swift setup, using cloudfuse
+})
+#Pull cluster node information, ** This is copied from the cluster recipe which primarily uses this, it is important they match
+nodes = normalize(get_data_bag_item("vertica", node['vertica']['cluster_name'] + "_nodes"), {
+  :nodes => { :required => true, :typeof => Hash, :metadata => {
+    :"*" => { :typeof => Hash, :required => true, :metadata => {
+      :ip => { :required => true, :typeof => String }, 
+      :broadcast => { :required => true, :typeof => String },
+      :netmask => { :required => true, :typeof => String },
+      :network => { :required => true, :typeof => String },
+      :routes => { :typeof => Array, :default => [] }
+      }
+    } }
+  }
+})['nodes']
+ips = []
+nodes.each { | node, value| ips.push(value['ip']) }
+ips.sort!
+
+## The swift setup, using cloudfuse
 package 'cloudfuse' do
   action :upgrade
 end
@@ -49,15 +70,49 @@ mount node[:vertica][:cloudfuse_dir] do
   options "defaults,noauto,user"
 end
 
-# The backup config
+## The backup configs
+directory node[:vertica][:vbr_dir] do
+  action :create
+  owner node['vertica']['dbadmin_user']
+  group node['vertica']['dbadmin_group']
+  mode '775'
+end
+
+snapshot_name = node[:domain].gsub('.', '_') + "_#{creds[:dbname]}"
+if node[:hostname]  =~ /az2-vertica0002/ # cron runs on the box which does the vbr command at least 1 hour before the rsyncs
+  run_hour = '3'
+  run_vbr = true
+else
+  run_hour = '5'
+  run_vbr = false
+end
+
 template "/opt/vertica/config/#{creds[:dbname]}_backup.yaml" do
   action :create
   source 'backup.yaml.erb'
   owner node['vertica']['dbadmin_user']
   group node['vertica']['dbadmin_group']
-  mode '640'
+  mode '644'
   variables(
-    :dbname => creds[:dbname]
+    :dbname => creds[:dbname],
+    :run_vbr => run_vbr,
+    :snapshot_name => snapshot_name,
+    :vbr_config => "/opt/vertica/config/#{creds[:dbname]}_backup.ini"
+  )
+end
+
+template "/opt/vertica/config/#{creds[:dbname]}_backup.ini" do
+  action :create
+  source 'backup.ini.erb'
+  owner node['vertica']['dbadmin_user']
+  group node['vertica']['dbadmin_group']
+  mode '600'
+  variables(
+    :dbname => creds[:dbname],
+    :dbuser => creds[:dbuser],
+    :dbpass => creds[:dbpass],
+    :ips => ips,
+    :snapshot_name => snapshot_name
   )
 end
 
@@ -68,13 +123,20 @@ group 'nagios' do
   append true
 end
 
-# The cronjob is not setup via the standard mechanism for nsca so I can specify a specific time
+# The cronjob is not setup via the standard mechanism for nsca so I can use a specific time
 # but it still relies on monitoring's nsca_wrapper and that the params match the icinga setup in attributes/backup.rb
 nsca_wrapper = "/usr/local/bin/nsca_wrapper" #Provided by the monitoring roles
+
+if node[:continent] == 'dev' and node[:area] != 'stb'  # Fake backups for dev
+  backup_command = "#{nsca_wrapper} -C 'echo No backups done in development' -S 'vertica_backup' -H #{node[:fqdn]}"
+else
+  backup_command = "#{nsca_wrapper} -C '/usr/bin/vertica_backup.py /opt/vertica/config/#{creds[:dbname]}_backup.yaml' -S 'vertica_backup' -H #{node[:fqdn]}"
+end
+
 cron 'vertica_backup' do
   action :create
   user node['vertica']['dbadmin_user']
-  hour "5"
+  hour run_hour
   minute node[:fqdn].hash % 60
-  command "#{nsca_wrapper} -C '/usr/bin/vertica_backup.py /opt/vertica/config/#{creds[:dbname]}_backup.yaml' -S 'vertica_backup' -H #{node[:fqdn]}"
+  command backup_command
 end

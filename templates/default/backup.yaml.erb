@@ -1,8 +1,9 @@
-backupdir: <%= node[:vertica][:cloudfuse_dir] %>
+cloudfuse_dir: <%= node[:vertica][:cloudfuse_dir] %>
+log_dir: /opt/vertica/log
+vbr_dir: <%= node[:vertica][:vbr_dir] %>
+vbr_config: <%= @vbr_config %>
 dbname: <%= @dbname %>
-DSN: DSN=monitor
 warning: <%= node[:vertica][:backup_warn_threshold] %>
 critical: <%= node[:vertica][:backup_crit_threshold]  %>
-log_dir: /opt/vertica/log
-data_dir: <%= node['vertica']['data_dir'] %>
-catalog_dir: <%= node['vertica']['catalog_dir'] %>
+run_vbr: <%= @run_vbr %>
+snapshot_name: <%= @snapshot_name %>

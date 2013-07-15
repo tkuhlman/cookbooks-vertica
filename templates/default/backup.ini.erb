@@ -1,0 +1,22 @@
+[Misc]
+snapshotName = <%= @snapshot_name %>
+verticaConfig = False
+restorePointLimit = 1
+tempDir = /tmp/vbr
+retryCount = 0
+retryDelay = 1
+
+[Transmission]
+hardLinkLocal = True
+
+[Database]
+dbName = <%= @dbname %>
+dbUser = <%= @dbuser %>
+dbPassword = <%= @dbpass %>
+
+<% @ips.each_index do |index| -%>
+[Mapping<%= index %>]
+dbNode = v_<%= @dbname %>_node000<%= index + 1 %>
+backupHost = <%= @ips[index] %>
+backupDir = <%= node[:vertica][:vbr_dir] %>
+<% end -%>
