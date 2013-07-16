@@ -19,4 +19,6 @@ node.default[:vertica][:backup_crit_threshold] = '1200'
 
 # Other attributes
 node.default[:vertica][:cloudfuse_dir] = '/mnt/swift'
-node.default[:vertica][:vbr_dir] = "#{node[:vertica][:data_dir]}/backup"
+# This should be based on node[:vertica][:data_dir] but since that attribute is defined in a different file
+# it must be loaded first and this is happening inconsistenly across environments
+node.default[:vertica][:vbr_dir] = "/var/vertica/data/backup"
