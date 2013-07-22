@@ -127,7 +127,7 @@ end
 # but it still relies on monitoring's nsca_wrapper and that the params match the icinga setup in attributes/backup.rb
 nsca_wrapper = "/usr/local/bin/nsca_wrapper" #Provided by the monitoring roles
 
-if node[:continent] == 'dev' and node[:area] != 'stb'  # Fake backups for dev
+if node[:continent] == 'dev'  # Fake backups for dev
   backup_command = "#{nsca_wrapper} -C 'echo No backups done in development' -S 'vertica_backup' -H #{node[:fqdn]}"
 else
   backup_command = "#{nsca_wrapper} -C '/usr/bin/vertica_backup.py /opt/vertica/config/#{creds[:dbname]}_backup.yaml' -S 'vertica_backup' -H #{node[:fqdn]}"
