@@ -3,6 +3,7 @@ default[:icinga][:service_checks][:vertica_backup] = {
   :use => "generic-passive-service",
   :freshness_threshold => 108000, #30 hours to allow for fluctuations in backup time
   :max_check_attempts => 1,
+  :flap_detection_enabled => 0,
   :servicegroups => ["SOM"],
   :contact_groups => ["som_team"]
 }
