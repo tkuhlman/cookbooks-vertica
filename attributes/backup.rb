@@ -23,3 +23,9 @@ node.default[:vertica][:cloudfuse_dir] = '/mnt/swift'
 # This should be based on node[:vertica][:data_dir] but since that attribute is defined in a different file
 # it must be loaded first and this is happening inconsistenly across environments
 node.default[:vertica][:vbr_dir] = "/var/vertica/data/backup"
+
+# Logs to backup
+node.default[:mon_log_backup][:logs][:vertica] = [
+  '/opt/vertica/log/',
+  '/var/vertica/catalog/som/v_som_node*_catalog/vertica.log.1.gz' #These logs are large so just backup the most recently complete
+]
