@@ -83,7 +83,7 @@ default[:icinga][:check_params][:vertica_sessions] = {
   :hostgroups => ["role[Vertica-Node]"],
   :check_interval => 3, #For passive services this is minutes
   # The nagios plugin doesn't fully escape so the \\ before an %2C is needed
-  :command => "/usr/bin/check_graphite -n yes -u http://#{graphite}/render/?target=sumSeries(Monitoring.#{node[:fqdn].gsub('.', '_')}.vertica.vertica-active_system_session_count-gauge--value.~\\%2CMonitoring.#{node[:fqdn].gsub('.', '_')}.vertica.vertica-active_user_session_count-gauge--value.~)&from=-15minutes&rawData=true -w 100 -c 150"
+  :command => "/usr/bin/check_graphite -n yes -u http://#{graphite}/render/?target=sumSeries(Monitoring.#{node[:fqdn].gsub('.', '_')}.vertica.vertica-active_system_session_count-gauge--value.~\\%2CMonitoring.#{node[:fqdn].gsub('.', '_')}.vertica.vertica-active_user_session_count-gauge--value.~)&from=-15minutes&rawData=true -w 150 -c 175"
 }
 
 default[:icinga][:service_checks][:vertica_percent_disk_free] = {
