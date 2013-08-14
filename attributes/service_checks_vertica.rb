@@ -1,9 +1,3 @@
-#Defines the service group
-default[:icinga][:server][:servicegroups][:SOM] = {
-  :servicegroup_name => "SOM",
-  :alias => "SOM"
-}
-
 #Active check from the icinga server to the vertica sql tcp port
 default[:icinga][:service_checks][:vertica_sql] = {
   :service_description => "vertica_sql",
