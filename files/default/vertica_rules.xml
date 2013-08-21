@@ -63,6 +63,14 @@
     <description>Vertica Failed Login</description>
   </rule>
 
+  <rule id="75118" level="3">
+    <if_sid>75116</if_sid>
+    <time>3 am - 4 am</time>
+    <!-- The host is the cluster ip of the box running vbr. This can be derived from the backup recipe + data bags if needed. -->
+    <match>host=10.</match>
+    <description>DB Backups must be run as the dbadmin user but we don't want nightly notifications of that user logging in.</description>
+  </rule>
+
   <!-- Turns out vertica frequently has large log entries -->
   <rule id="75120" level="3">
     <if_sid>1003</if_sid>
