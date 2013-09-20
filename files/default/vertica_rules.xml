@@ -76,4 +76,11 @@
     <if_sid>1003</if_sid>
     <description>Non-Standard Sys Log message</description>
   </rule>
+
+  <rule id="75121" level="0">
+    <if_sid>1002</if_sid>
+    <options>no_email_alert</options>
+    <match>{SessionRun} 00000: missing error text</match>
+    <description>Useless error caused by our monitoring making a tcp connect to vertica then dropping off.</description>
+  </rule>
 </group>
