@@ -2,6 +2,8 @@
 # The config and setup goes on each vertica node but only one is actually activated to run the job, it starts the job on the others
 # This is so the backup is consistent across all 5 nodes and is a core assumption of the vbr tool
 
+require 'zlib'
+
 # The backup script is in this package with
 package 'sommon' do
   action :upgrade
@@ -137,6 +139,6 @@ cron 'vertica_backup' do
   action :create
   user node['vertica']['dbadmin_user']
   hour run_hour
-  minute node[:fqdn].hash % 60
+  minute Zlib.crc32(node[:fqdn]) % 60
   command backup_command
 end
