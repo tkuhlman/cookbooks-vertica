@@ -10,17 +10,6 @@
   end
 end
 
-
-##Sysctl and security settings
-sysctl 'vm.min_free_kbytes' do
-  action :set
-  value '4096'
-end
-sysctl 'vm.max_map_count' do 
-  action :set
-  value (node[:memory][:total].to_i/16).to_s #ram in KB/16
-end
-
 # Setup User limits for the db
 template '/etc/security/limits.d/vertica.conf' do
   action :create

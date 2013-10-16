@@ -15,3 +15,7 @@ node.default['vertica']['data_dir'] = '/var/vertica/data'
 node.default['vertica']['data_dev'] = '/dev/sdb1'
 # Package version
 node.default['version_pins']['vertica']['vertica']['version'] = '6.1.1-0'
+
+#Sysctl settings, picked up by the sysctl cookbook in basenode
+node.default['sysctl']['vm.min_free_kbytes'] = '4096'
+node.default['sysctl']['vm.max_map_count'] = (node[:memory][:total].to_i/16).to_s #ram in KB/16
