@@ -65,8 +65,7 @@ default[:icinga][:check_params][:vertica_sessions] = {
   :user => "nagios",
   :hostgroups => ["role[Vertica-Node]"],
   :check_interval => 5, #For passive services this is minutes
-  # The nagios plugin doesn't fully escape so the \\ before an %2C is needed
-  :command => "/usr/bin/check_graphite -n yes -u http://#{graphite}/render/?target=sumSeries(Monitoring.#{node[:fqdn].gsub('.', '_')}.vertica.vertica-active_system_session_count-gauge--value.~\\%2CMonitoring.#{node[:fqdn].gsub('.', '_')}.vertica.vertica-active_user_session_count-gauge--value.~)&from=-15minutes&rawData=true -w 150 -c 175"
+  :command => "/usr/bin/check_graphite -n yes -u http://#{graphite}/render/?target=Monitoring.#{node[:fqdn].gsub('.', '_')}.vertica.vertica-sessions-gauge--value.~&from=-15minutes&rawData=true -w 150 -c 175"
 }
 
 default[:icinga][:service_checks][:vertica_percent_disk_free] = {
@@ -81,5 +80,5 @@ default[:icinga][:check_params][:vertica_percent_disk_free] = {
   :hostgroups => ["role[Vertica-Node]"],
   :check_interval => 60, #For passive services this is minutes
   # The nagios plugin doesn't fully escape so the \\ before an %2C is needed
-  :command => "/usr/bin/check_graphite -n yes -u http://#{graphite}/render/?target=scale(divideSeries(Monitoring.#{node[:fqdn].gsub('.', '_')}.vertica.vertica-disk_space_used_mb-gauge--value.~\\%2CsumSeries(Monitoring.#{node[:fqdn].gsub('.', '_')}.vertica.vertica-disk_space_used_mb-gauge--value.~\\%2CMonitoring.#{node[:fqdn].gsub('.', '_')}.vertica.vertica-disk_space_free_mb-gauge--value.~))\\%2C100)&from=-60minutes&rawData=true -w 60 -c 75"
+  :command => "/usr/bin/check_graphite -n yes -u http://#{graphite}/render/?target=minSeries(Monitoring.#{node[:fqdn].gsub('.', '_')}.vertica.vertica-data_disk_percent_free-percent--value.~\\%2CMonitoring.#{node[:fqdn].gsub('.', '_')}.vertica.vertica-catalog_disk_percent_free-percent--value.~)&from=-60minutes&rawData=true -w 60 -c 85 -f min"
 }

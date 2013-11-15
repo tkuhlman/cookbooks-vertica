@@ -9,5 +9,6 @@
 
   <Module collectd_vertica>
     DSN "<%= node['vertica']['monitoring_dsn'] %>"
+    VERTICA_INI "/etc/odbc.d/vertica_driver.ini"
   </Module>
 </Plugin>
