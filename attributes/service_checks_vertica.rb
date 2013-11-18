@@ -80,5 +80,5 @@ default[:icinga][:check_params][:vertica_percent_disk_free] = {
   :hostgroups => ["role[Vertica-Node]"],
   :check_interval => 60, #For passive services this is minutes
   # The nagios plugin doesn't fully escape so the \\ before an %2C is needed
-  :command => "/usr/bin/check_graphite -n yes -u http://#{graphite}/render/?target=minSeries(Monitoring.#{node[:fqdn].gsub('.', '_')}.vertica.vertica-data_disk_percent_free-percent--value.~\\%2CMonitoring.#{node[:fqdn].gsub('.', '_')}.vertica.vertica-catalog_disk_percent_free-percent--value.~)&from=-60minutes&rawData=true -w 60 -c 85 -f min"
+  :command => "/usr/bin/check_graphite -n yes -u http://#{graphite}/render/?target=minSeries(Monitoring.#{node[:fqdn].gsub('.', '_')}.vertica.vertica-data_disk_percent_free-percent--value.~\\%2CMonitoring.#{node[:fqdn].gsub('.', '_')}.vertica.vertica-catalog_disk_percent_free-percent--value.~)&from=-60minutes&rawData=true -w 40: -c 15: -f min"
 }
