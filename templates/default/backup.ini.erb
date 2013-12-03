@@ -18,5 +18,5 @@ dbPassword = <%= @dbpass %>
 [Mapping<%= index %>]
 dbNode = v_<%= @dbname %>_node000<%= index + 1 %>
 backupHost = <%= @ips[index] %>
-backupDir = <%= node[:vertica][:vbr_dir] %>
+backupDir = <%= node[:vertica][:backup_dir] %>
 <% end -%>

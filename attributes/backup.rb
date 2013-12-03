@@ -16,13 +16,11 @@ default[:icinga][:check_params][:vertica_backup] = {
 
 # Thresholds on the backup time in minutes
 node.default[:vertica][:backup_warn_threshold] = '1320' #22 hours
-node.default[:vertica][:backup_crit_threshold] = '1410' #23.5 hours
 
 # Other attributes
-node.default[:vertica][:cloudfuse_dir] = '/mnt/swift'
 # This should be based on node[:vertica][:data_dir] but since that attribute is defined in a different file
 # it must be loaded first and this is happening inconsistenly across environments
-node.default[:vertica][:vbr_dir] = "/var/vertica/data/backup"
+node.default[:vertica][:backup_dir] = "/var/vertica/data/backup"
 
 # Logs to backup
 node.default[:mon_log_backup][:logs][:vertica] = [

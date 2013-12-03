@@ -4,8 +4,7 @@
 
 require 'zlib'
 
-# The backup script is in this package with
-package 'sommon' do
+package 'vertica-utils' do
   action :upgrade
 end
 
@@ -37,43 +36,8 @@ ips = []
 nodes.each { | node, value| ips.push(value['ip']) }
 ips.sort!
 
-## The swift setup, using cloudfuse
-package 'cloudfuse' do
-  action :upgrade
-end
-
-directory node[:vertica][:cloudfuse_dir] do
-  action :create
-  owner 'root'
-  group node['vertica']['dbadmin_group']
-  mode '775'
-  not_if "mount |grep /mnt/swift" #When cloudfuse mounts the dir not even root can read it and so the checks to verify fail
-end
-
-template "/root/.cloudfuse" do #It seems the mount command still looks for it in /root though it is run by dbadmin
-  action :create
-  source 'cloudfuse.erb'
-  owner 'root'
-  group node['vertica']['dbadmin_group']
-  mode '640'
-  variables(
-    :swift_user => creds[:swift_user],
-    :swift_tenant => creds[:swift_tenant],
-    :swift_key => creds[:swift_key],
-    :url => creds[:url]
-  )
-end
-
-# The backup job mounts/unmounts this just puts it in fstab.
-mount node[:vertica][:cloudfuse_dir] do
-  action :enable
-  device 'cloudfuse'
-  fstype 'fuse'
-  options "defaults,noauto,user"
-end
-
 ## The backup configs
-directory node[:vertica][:vbr_dir] do
+directory node[:vertica][:backup_dir] do
   action :create
   owner node['vertica']['dbadmin_user']
   group node['vertica']['dbadmin_group']
@@ -94,11 +58,15 @@ template "/opt/vertica/config/#{creds[:dbname]}_backup.yaml" do
   source 'backup.yaml.erb'
   owner node['vertica']['dbadmin_user']
   group node['vertica']['dbadmin_group']
-  mode '644'
+  mode '600'
   variables(
     :dbname => creds[:dbname],
     :run_vbr => run_vbr,
     :snapshot_name => snapshot_name,
+    :swift_user => creds[:swift_user],
+    :swift_tenant => creds[:swift_tenant],
+    :swift_key => creds[:swift_key],
+    :url => creds[:url],
     :vbr_config => "/opt/vertica/config/#{creds[:dbname]}_backup.ini"
   )
 end
@@ -132,7 +100,7 @@ nsca_wrapper = "/usr/local/bin/nsca_wrapper" #Provided by the monitoring roles
 if node[:continent] == 'dev'  # Fake backups for dev
   backup_command = "#{nsca_wrapper} -C 'echo No backups done in development' -S 'vertica_backup' -H #{node[:fqdn]}"
 else
-  backup_command = "#{nsca_wrapper} -C '/usr/bin/vertica_backup.py /opt/vertica/config/#{creds[:dbname]}_backup.yaml' -S 'vertica_backup' -H #{node[:fqdn]}"
+  backup_command = "#{nsca_wrapper} -C '/usr/bin/vertica_backup /opt/vertica/config/#{creds[:dbname]}_backup.yaml' -S 'vertica_backup' -H #{node[:fqdn]}"
 end
 
 cron 'vertica_backup' do
