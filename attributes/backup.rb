@@ -21,6 +21,7 @@ node.default[:vertica][:backup_warn_threshold] = '1320' #22 hours
 # This should be based on node[:vertica][:data_dir] but since that attribute is defined in a different file
 # it must be loaded first and this is happening inconsistenly across environments
 node.default[:vertica][:backup_dir] = "/var/vertica/data/backup"
+node.default[:vertica][:backup_retain] = 7 # keep 7 backups
 
 # Logs to backup
 node.default[:mon_log_backup][:logs][:vertica] = [
