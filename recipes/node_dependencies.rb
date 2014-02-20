@@ -4,7 +4,7 @@
 
 # A few packages recommended for use with vertica,  bc and ssh are actual requirements that should
 # be taken care of by apt but when running vertica's install script it uses dpkg so I set them up.
-%w[ logrotate pstack rsync bc ssh ].each do |pkg_name|
+%w[ logrotate pstack rsync ssh sysstat mcelog ].each do |pkg_name|
   package pkg_name do
     action :install
   end

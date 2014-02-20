@@ -1,15 +1,24 @@
 # Setup a vertica node
 
+# If the nodes data bag exists consider this a cluster
+# !! Todo - right now this is not using the hp_common_functions but the recipe itself its.
+if Chef::Config[:solo]
+  node[:vertica][:is_standalone] = true
+else
+  node[:vertica][:is_standalone] = search(:vertica, 'id:nodes*').empty?
+end
+
 # Prep for installation
 include_recipe 'vertica::node_dependencies'
 
 package "vertica" do
   action :install
-  version pinned_version('vertica')
+  version node[:vertica][:version]
 end
 
-package "vertica-r-lang" do
+package "vertica-R-lang" do
   action :install
+  version node[:vertica][:r_version]
 end
 
 # Static configuration common to all nodes in any cluster
@@ -21,11 +30,9 @@ include_recipe 'vertica::cluster'
 ## start services
 #Note: Nothing triggers a restart of the services, this cookbook largely sets up a node then vertica admin tools take
 #the configuration from there. They are then responsible for any service restarts.
-%w[ spreadd vertica_agent ].each do |svc_name| #note spreadd must be first
-  service svc_name do
-    action [ :enable, :start ]
-    supports :status => true, :restart => true
-  end
+service 'vertica_agent' do
+  action [ :enable, :start ]
+  supports :status => true, :restart => true
 end
 
 #The verticad daemon will fail startup until it has a valid database. As this cookbook does not setup a db I enable it only
@@ -35,5 +42,10 @@ service 'verticad' do
   supports :status => true, :restart => true
 end
 
-include_recipe 'vertica::monitor'
-include_recipe 'vertica::backup'
+if node.recipes.include?('vertica_client::python')
+  include_recipe 'vertica::monitor'
+end
+
+unless Chef::Config[:solo] # Since chef solo is mostly vagrant no backup is included
+  include_recipe 'vertica::backup'
+end

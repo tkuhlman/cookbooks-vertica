@@ -1,4 +1,4 @@
-default['vertica']['firewall']['rules'] = [
+default[:vertica][:firewall][:rules] = [
   "sql" => {
     "port" => "5433",
     "protocol" => "tcp"

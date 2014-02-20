@@ -1,10 +1,10 @@
 <% #Oranize nodes into broadcast groups
 bgroups = {}
 @nodes.each_value do |value|
-  if bgroups.has_key? value['broadcast']
-    bgroups[value['broadcast']].push(value['ip']) 
+  if bgroups.has_key? value[:broadcast]
+    bgroups[value[:broadcast]].push(value[:ip]) 
   else
-    bgroups[value['broadcast']] = [value['ip']]
+    bgroups[value[:broadcast]] = [value[:ip]]
   end
 end
 -%>

@@ -1,4 +1,4 @@
-node.default['vertica']['monitoring_dsn'] = 'DSN=monitor'
+node.default[:vertica][:monitoring_dsn] = 'DSN=monitor'
 
 # Setup logs for ossec to watch
 node.default[:ossec][:watched][:vertica] = {

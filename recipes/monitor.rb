@@ -6,7 +6,6 @@ package 'sommon' do
   action :upgrade
 end
 
-include_recipe 'vertica_client::python'
 vertica_client_python 'monitor' do
   action :create
 end
@@ -18,7 +17,7 @@ template '/opt/collectd/etc/collectd.d/collectd-python.conf' do
   group 'root'
   mode '644'
     #The service is defined in the collectd::collectd-Agent recipe which is assumed to be loaded.
-  notifies :restart, resources(:service => "collectd")
+  notifies :restart, "service[collectd]"
 end
 
 # Rules for ossec, attributes define the log files to watch

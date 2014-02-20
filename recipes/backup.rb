@@ -9,7 +9,7 @@ package 'vertica-utils' do
 end
 
 ## Pull the data bags
-creds = normalize(get_data_bag_item("vertica", "#{node['vertica']['cluster_name']}_backup_credentials", { :encrypted => true}), {
+creds = normalize(get_data_bag_item("vertica", "backup_credentials#{node[:vertica][:cluster_name]}", { :encrypted => true}), {
   :dbname => { :required => true, :typeof => String },
   :dbpass => { :required => true, :typeof => String },
   :dbuser => { :required => true, :typeof => String },
@@ -20,7 +20,7 @@ creds = normalize(get_data_bag_item("vertica", "#{node['vertica']['cluster_name'
 
 })
 #Pull cluster node information, ** This is copied from the cluster recipe which primarily uses this, it is important they match
-nodes = normalize(get_data_bag_item("vertica", node['vertica']['cluster_name'] + "_nodes"), {
+nodes = normalize(get_data_bag_item("vertica", "nodes#{node[:vertica][:cluster_name]}"), {
   :nodes => { :required => true, :typeof => Hash, :metadata => {
     :"*" => { :typeof => Hash, :required => true, :metadata => {
       :ip => { :required => true, :typeof => String }, 
@@ -31,16 +31,16 @@ nodes = normalize(get_data_bag_item("vertica", node['vertica']['cluster_name'] +
       }
     } }
   }
-})['nodes']
+})[:nodes]
 ips = []
-nodes.each { | node, value| ips.push(value['ip']) }
+nodes.each { | node, value| ips.push(value[:ip]) }
 ips.sort!
 
 ## The backup configs
 directory node[:vertica][:backup_dir] do
   action :create
-  owner node['vertica']['dbadmin_user']
-  group node['vertica']['dbadmin_group']
+  owner node[:vertica][:dbadmin_user]
+  group node[:vertica][:dbadmin_group]
   mode '775'
 end
 
@@ -56,8 +56,8 @@ end
 template "/opt/vertica/config/#{creds[:dbname]}_backup.yaml" do
   action :create
   source 'backup.yaml.erb'
-  owner node['vertica']['dbadmin_user']
-  group node['vertica']['dbadmin_group']
+  owner node[:vertica][:dbadmin_user]
+  group node[:vertica][:dbadmin_group]
   mode '600'
   variables(
     :dbname => creds[:dbname],
@@ -74,8 +74,8 @@ end
 template "/opt/vertica/config/#{creds[:dbname]}_backup.ini" do
   action :create
   source 'backup.ini.erb'
-  owner node['vertica']['dbadmin_user']
-  group node['vertica']['dbadmin_group']
+  owner node[:vertica][:dbadmin_user]
+  group node[:vertica][:dbadmin_group]
   mode '600'
   variables(
     :dbname => creds[:dbname],
@@ -89,7 +89,7 @@ end
 # In order for the dbadmin_user to run the backup job and report to icinga it must be in the nagios group
 group 'nagios' do
   action :modify
-  members node['vertica']['dbadmin_user']
+  members node[:vertica][:dbadmin_user]
   append true
 end
 
@@ -105,7 +105,7 @@ end
 
 cron 'vertica_backup' do
   action :create
-  user node['vertica']['dbadmin_user']
+  user node[:vertica][:dbadmin_user]
   hour run_hour
   minute Zlib.crc32(node[:fqdn]) % 60
   command backup_command
