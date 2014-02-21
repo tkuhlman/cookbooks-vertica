@@ -35,6 +35,16 @@ service 'vertica_agent' do
   supports :status => true, :restart => true
 end
 
+# There is a known bug in 7.0.0 regarding spread in the init script this fixes it but shouldn't be necessary in future versions
+cookbook_file '/opt/vertica/sbin/verticad' do
+  action :create
+  owner 'root'
+  group 'root'
+  mode 0755
+  source 'fixed-verticad'
+end
+
+
 #The verticad daemon will fail startup until it has a valid database. As this cookbook does not setup a db I enable it only
 #Upon database setup it will be started by the vertica admintools
 service 'verticad' do
@@ -48,4 +58,8 @@ end
 
 unless Chef::Config[:solo] # Since chef solo is mostly vagrant no backup is included
   include_recipe 'vertica::backup'
+end
+
+if Chef::Config[:solo]
+  include_recipe 'vertica::create_db'
 end

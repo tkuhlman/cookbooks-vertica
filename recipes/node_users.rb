@@ -1,11 +1,6 @@
 # Add users and groups needed for a node
 # This recipe should not stand alone but be included from another
 
-user node[:vertica][:spread_user] do
-  action :create
-  system  true
-end
-
 # I setup ssh_key login for the dbadmin user but no password auth
 user node[:vertica][:dbadmin_user] do
   action :create

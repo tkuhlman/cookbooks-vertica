@@ -32,5 +32,5 @@ file '/etc/profile.d/vertica_node.sh' do
   owner 'root'
   group 'root'
   mode "644"
-  content "export LANG='en_US.UTF-8'\nexport R_HOME=/opt/vertica/R\n"
+  content "export LANG='en_US.UTF-8'\nexport LC_ALL='en_US.UTF-8'\nexport R_HOME=/opt/vertica/R\n"
 end

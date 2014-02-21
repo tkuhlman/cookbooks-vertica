@@ -48,33 +48,6 @@ template "#{vconfig_dir}/admintools.conf" do
   )
 end
 
-#Spread setup
-template "#{vconfig_dir}/vspread.conf" do
-  action :create
-  owner node[:vertica][:spread_user]
-  group node[:vertica][:dbadmin_group]
-  mode "644"
-  source "vspread.conf.erb"
-  variables(
-    :nodes => nodes,
-    :user => node[:vertica][:spread_user],
-    :group => node[:vertica][:dbadmin_group]
-  )
-end
-
-# assumes the cluster interface name contains the hostname
-template "/etc/spreadd" do
-  action :create
-  owner 'root'
-  group 'root'
-  mode "644"
-  source "spreadd.erb"
-  variables(
-    :mangled_ip => local_net[:ip].split('.').map { |octet| "%03d" % octet }.join,
-    :user => node[:vertica][:spread_user]
-  )
-end
-
 unless node[:vertica][:is_standalone]
   # Setup the /etc/hosts file on each box, each box in the cluster should know about the others and itself.
   # The hosts/ips setup are for the internal cluster communication

@@ -1,0 +1,206 @@
+#!/bin/bash
+# 
+# Copyright Vertica, an HP Company 2012 
+# All rights reserved 
+# 
+
+#
+### verticad - startup/shutdown for the Vertica Analytic Database daemon
+#
+#   The Vertica Analytic Database is a distributed column-oriented database.
+#
+#   Notes:
+#       This is rather a thin implementation because starting up a single
+#       node of a clustered database is complex.  So this script simply
+#       delivers a control command to the Vertica Administration Tools, which
+#       are responsible for implementing the command and returning the result.
+#
+# RedHat metadata format:
+#   chkconfig: 345 99 10
+#   description: Startup/shutdown script for the Vertica Analytic Database
+#
+# LSB/SUSE format:
+### BEGIN INIT INFO
+# Provides:       verticad
+# Required-Start: spreadd $network ntpd
+# Should-Start:
+# Required-Stop:
+# Should-Stop:
+# Default-Start:  3 5
+# Default-Stop:   0 1 6
+# Description:    Startup/shutdown script for the Vertica Analytic Database
+### END INIT INFO
+
+
+#
+# Determine our OS
+#
+
+[ -f /etc/redhat-release ] && OS=redhat
+[ -f /etc/SuSE-release ] && OS=suse
+[ -f /etc/debian_version ] && OS=debian
+
+#
+# Source function library.
+#
+case $OS in
+    redhat)
+	. /etc/rc.d/init.d/functions
+	;;
+    suse)
+	. /etc/rc.status
+	;;
+    debian)
+        . /lib/lsb/init-functions
+	;;
+    *)
+	echo Unsupported OS
+	exit 1
+	;;
+esac
+
+
+#
+# OS-specific helper functions
+#
+# error(msg) prints the error message then exits
+#
+function error {
+    if [ "$mode" == "status" ]; then
+	echo $1
+    else
+	echo $1
+	case $OS in
+	    redhat)
+		echo_failure
+		;;
+	    suse)
+		echo $rc_failed
+		;;
+            debian)
+                log_failure_msg
+		;;
+	esac
+    fi
+    exit 1
+}
+
+# success() exits appropriately
+#
+function success {
+    if [ "$mode" == "status" ]; then
+	echo $1
+    else
+	echo $1
+	case $OS in
+	    redhat)
+		echo_success
+		;;
+	    suse)
+		echo -e "$rc_running"
+		;;
+            debian)
+                log_success_msg
+		;;
+	esac
+    fi
+    exit 0
+}
+
+
+# Check argument
+case "$1" in
+    start)
+        ;;
+    stop)
+        ;;
+    status)
+	mode=status
+        ;;
+    restart)
+        ;;
+    condrestart)
+        ;;
+    *)
+        echo "Usage: $0 {start|stop|status|restart|condrestart}"
+	exit 1
+        ;;
+esac
+
+# Ready to roll...
+
+echo -n $"Vertica: "
+
+#
+# Sanity checks: networking must be up, spread must be running, the
+# vertica admin tools must be installed.
+#
+if [ "$OS" == "redhat" ]; then
+    . /etc/sysconfig/network
+    if [ ${NETWORKING} = "no" ]; then
+	error 
+    fi
+fi
+
+# Find out where vertica is installed, use that path
+
+if [ "$OS" == "redhat" -o "$OS" == "suse" ]; then
+    vertica_prefix=`rpm -q vertica --qf %{INSTPREFIXES}`
+    if [ $? -ne 0 ]; then
+        # No RPM installed
+        error "No RPM: $vertica_prefix"
+    fi
+elif [ "$OS" ==  "debian" ]; then
+    query_out=`dpkg-query -S /opt/vertica/config | awk -F": " '{print $2}'`
+    if [ $? -ne 0 -o -z "$query_out" ]; then
+        # No package installed
+        error "No package"
+    fi
+    vertica_prefix=`expr "$query_out" : "\(.*\)/config"`
+else
+    error "Unknown OS = $OS"
+fi
+
+# check that spread is installed and running
+#if [ ! -f /etc/init.d/spreadd ]; then
+#    error "No Spread installed"
+#fi
+#
+#/etc/init.d/spreadd status > /dev/null
+#if [ $? -ne 0 ]; then
+#    error "Spread not running"
+#fi
+
+eula_acceptance="${vertica_prefix}/config/d5415f948449e9d4c421b568f2411140.dat"
+
+if [ -f ${eula_acceptance} ]; then
+    if [ -d "${vertica_prefix}/config/users" ]; then
+        # Good to go, execute the command as each DB admin 
+        #user that has databases defined
+        cd ${vertica_prefix}/config/users
+        succeedDB=
+        for user in *; do
+            # echo "User: ${user}"
+            if [ -f ${vertica_prefix}/config/users/${user}/installed.dat ]; then
+            # run command as the DBA user
+            # output goes to /dev/null for this script, but most stuff is in admin tools log
+                su -l ${user} -c "${vertica_prefix}/bin/adminTools -t command_host -c$1" > /dev/null
+            if [ $? -eq 0 ]; then
+                succeedDB="$succeedDB$user "
+            fi
+            fi
+        done;
+    else
+        error "Vertica not yet installed. Run ${vertica_prefix}/sbin/install_vertica"
+    fi
+else
+    error "EULA not  yet accepted."
+fi;
+
+# For status, we return success iff the command succeeded for some user
+
+if [ "$succeedDB" == "" ]; then
+    error "$1 not OK"
+else
+    success "$1 OK for users: $succeedDB"
+fi

@@ -38,15 +38,6 @@ init_links.each do |path, target|
   end
 end
 
-# The spread logroation file is included via /etc/logrotate.d/vertica that comes in the package
-cookbook_file "#{vconfig_dir}/logrotate/spread_daemon.logrotate" do
-  action :create_if_missing
-  source "spread_daemon.logrotate"
-  owner 'root'
-  group 'root'
-  mode "664"
-end
-
 # EULA acceptance makes this file, with a timestamp, I'm not bothering to update the timestamp
 cookbook_file "#{vconfig_dir}/d5415f948449e9d4c421b568f2411140.dat" do
   action :create_if_missing
