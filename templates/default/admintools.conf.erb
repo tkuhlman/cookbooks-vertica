@@ -3,6 +3,7 @@ install_opts = ['-Y', '-T', '-s', '<%= @ips.join(',') %>', '-r', '/tmp/vertica_7
 default_base = /home/dbadmin
 show_hostnames = False
 format = 3
+last_port = 5433
 
 [Cluster]
 hosts = <%= @ips.join(',') %>

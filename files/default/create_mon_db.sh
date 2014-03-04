@@ -1,11 +1,14 @@
-#!/bin/sh -x
+#!/bin/sh -xe
 #
 # Build the mon data base
 
-if [ $USER != 'dbadmin']; then
+if [ $USER != 'dbadmin' ]; then
   echo "Must be run by the dbadmin user"
   exit
 fi
+
+# Make sure the locale settings are set correctly
+. /etc/profile.d/vertica_node.sh
 
 # create the db
 /opt/vertica/bin/admintools -t create_db -s 127.0.0.1 -d mon -p password
