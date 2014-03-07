@@ -40,6 +40,7 @@ CREATE TABLE MonMetrics.StagedDimensions(
 
 -- Projections
 -- ** These are for a single node system with no k safety
+-- Note there are not projections for the staged* tables as these only contain temporary data and are frequently purged.
 
 CREATE PROJECTION Metrics_DBD_1_rep_MonMetrics /*+createtype(D)*/
 (
@@ -78,25 +79,6 @@ AS
           name
 UNSEGMENTED ALL NODES;
 
-CREATE PROJECTION StagedDefinitions_DBD_3_rep_MonMetrics /*+createtype(D)*/
-(
- metric_definition_id ENCODING RLE, 
- name ENCODING AUTO, 
- tenant_id ENCODING RLE, 
- region ENCODING RLE
-)
-AS
- SELECT metric_definition_id, 
-        name, 
-        tenant_id, 
-        region
- FROM MonMetrics.StagedDefinitions 
- ORDER BY metric_definition_id,
-          tenant_id,
-          region,
-          name
-UNSEGMENTED ALL NODES;
-
 CREATE PROJECTION Dimensions_DBD_4_rep_MonMetrics /*+createtype(D)*/
 (
  metric_definition_id ENCODING RLE, 
@@ -112,19 +94,4 @@ AS
           name
 UNSEGMENTED ALL NODES;
 
-CREATE PROJECTION StagedDimensions_DBD_5_rep_MonMetrics /*+createtype(D)*/
-(
- metric_definition_id ENCODING RLE, 
- name ENCODING AUTO, 
- value ENCODING AUTO
-)
-AS
- SELECT metric_definition_id, 
-        name, 
-        value
- FROM MonMetrics.StagedDimensions 
- ORDER BY metric_definition_id,
-          name
-UNSEGMENTED ALL NODES;
-
-select refresh('MonMetrics.Metrics, MonMetrics.Definitions, MonMetrics.StagedDefinitions, MonMetrics.Dimensions, MonMetrics.StagedDimensions');
+select refresh('MonMetrics.Metrics, MonMetrics.Definitions, MonMetrics.Dimensions');
