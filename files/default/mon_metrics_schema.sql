@@ -17,24 +17,12 @@ CREATE TABLE MonMetrics.Definitions(
     CONSTRAINT MetricsDefinitionsConstraint UNIQUE(metric_definition_id, name, tenant_id, region)
 );
 
-CREATE TABLE MonMetrics.StagedDefinitions(
-   metric_definition_id BINARY(20) NOT NULL,
-   name VARCHAR NOT NULL,
-   tenant_id VARCHAR(14) NOT NULL,
-   region VARCHAR
-);
 
 CREATE TABLE MonMetrics.Dimensions(
     metric_definition_id BINARY(20) NOT NULL,
     name VARCHAR NOT NULL,
     value VARCHAR NOT NULL,
     CONSTRAINT MetricsDimensionsConstraint UNIQUE(metric_definition_id, name, value)
-);
-
-CREATE TABLE MonMetrics.StagedDimensions(
-    metric_definition_id BINARY(20),
-    name VARCHAR NOT NULL,
-    value VARCHAR NOT NULL
 );
 
 
