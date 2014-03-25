@@ -7,7 +7,7 @@ need to be made in the data bags for a cluster. As a result the cookbook is setu
 to tracked files and to not track many of the files created by Vertica during database setup. Additionally there is
 nothing that triggers a service restart.
 
-All entries into this cookbook should be via the default recipe, others are for organization only.
+All entries into this cookbook should be via the default or console recipe, others are for organization only.
 
 To run as cluster the nodes data bag item must exist otherwise it will come up stand alone.
 
@@ -42,6 +42,7 @@ To run as cluster the nodes data bag item must exist otherwise it will come up s
   - If the ossec cookbook is available ossec rules are loaded
   - If the vertica_client::python recipe is in the run list monitoring can be setup
   - The backup scripts are not installed for chef-solo
+  - Add the management console to a box by running the console recipe. It serves https on port 5450
 
 #Attributes
   - cluster_name is set to an empty string by default if you wish more than one cluster per AZ this attribute can be set for additional clusters.
