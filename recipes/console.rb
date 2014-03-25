@@ -1,3 +1,4 @@
 package 'vertica-console' do
-  action :upgrade
+  action :install
+  version node[:vertica][:version]
 end
