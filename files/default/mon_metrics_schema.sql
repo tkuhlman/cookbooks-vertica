@@ -17,12 +17,6 @@ CREATE TABLE MonMetrics.Definitions(
     CONSTRAINT MetricsDefinitionsConstraint UNIQUE(metric_definition_id, name, tenant_id, region)
 );
 
-CREATE TABLE MonMetrics.StagedDefinitions(
-   metric_definition_id BINARY(20) NOT NULL,
-   name VARCHAR NOT NULL,
-   tenant_id VARCHAR(14) NOT NULL,
-   region VARCHAR
-);
 
 CREATE TABLE MonMetrics.Dimensions(
     metric_definition_id BINARY(20) NOT NULL,
@@ -31,16 +25,9 @@ CREATE TABLE MonMetrics.Dimensions(
     CONSTRAINT MetricsDimensionsConstraint UNIQUE(metric_definition_id, name, value)
 );
 
-CREATE TABLE MonMetrics.StagedDimensions(
-    metric_definition_id BINARY(20),
-    name VARCHAR NOT NULL,
-    value VARCHAR NOT NULL
-);
-
 
 -- Projections
 -- ** These are for a single node system with no k safety
--- Note there are not projections for the staged* tables as these only contain temporary data and are frequently purged.
 
 CREATE PROJECTION Metrics_DBD_1_rep_MonMetrics /*+createtype(D)*/
 (
