@@ -16,6 +16,7 @@ fi
 # Add in the schemas
 /opt/vertica/bin/vsql -w password < /var/vertica/mon_schema.sql
 /opt/vertica/bin/vsql -w password < /var/vertica/mon_metrics_schema.sql
+/opt/vertica/bin/vsql -w password < /var/vertica/mon_alarms_schema.sql
 /opt/vertica/bin/vsql -w password < /var/vertica/mon_users.sql
 /opt/vertica/bin/vsql -w password < /var/vertica/mon_grants.sql
 
