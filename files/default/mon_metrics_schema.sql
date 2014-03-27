@@ -26,7 +26,6 @@ CREATE TABLE MonMetrics.Dimensions(
 
 -- Projections
 -- ** These are for a single node system with no k safety
--- Note there are not projections for the staged* tables as these only contain temporary data and are frequently purged.
 
 CREATE PROJECTION Metrics_DBD_1_rep_MonMetrics /*+createtype(D)*/
 (

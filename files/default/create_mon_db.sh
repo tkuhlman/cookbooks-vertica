@@ -20,6 +20,9 @@ fi
 /opt/vertica/bin/vsql -w password < /var/vertica/mon_users.sql
 /opt/vertica/bin/vsql -w password < /var/vertica/mon_grants.sql
 
+# Set restart policy so a single node cluster comes back after a reboot
+/opt/vertica/bin/admintools -t set_restart_policy -d mon -p always
+
 # For ssl support link the cert/key and restart the db
 ln /var/vertica/catalog/server* /var/vertica/catalog/mon/v*/
 /opt/vertica/bin/admintools -t stop_db -p password -d mon

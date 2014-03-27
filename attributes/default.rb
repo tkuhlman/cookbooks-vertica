@@ -13,8 +13,8 @@ node.default[:vertica][:catalog_dir] = '/var/vertica/catalog'
 node.default[:vertica][:data_dir] = '/var/vertica/data'
 node.default[:vertica][:data_dev] = '' # Set to something like /dev/sdb1 to format and prepare a vertica data disk
 # Package version
-node.default[:vertica][:version] = '7.0.0-1'
-node.default[:vertica][:r_version] = '7.0.0'
+node.default[:vertica][:version] = '7.0.1-0'
+node.default[:vertica][:r_version] = '7.0.1'
 
 #Sysctl settings
 #This style is picked up by the sysctl cookbook in HP Cloud basenode

@@ -29,7 +29,10 @@ end
 if node[:vertica][:is_standalone]
   bash 'create ssh key' do
     action :run
-    code "ssh-keygen -t rsa -b 2048 -f #{node[:vertica][:dbadmin_home]}/.ssh/id_rsa -q -N ''"
+    code <<-EOH
+    ssh-keygen -t rsa -b 2048 -f #{node[:vertica][:dbadmin_home]}/.ssh/id_rsa -q -N '' 
+    cp #{node[:vertica][:dbadmin_home]}/.ssh/id_rsa.pub #{node[:vertica][:dbadmin_home]}/.ssh/authorized_keys
+    EOH
     user node[:vertica][:dbadmin_user]
     not_if do ::File.exists?("#{node[:vertica][:dbadmin_home]}/.ssh/id_rsa") end
   end
@@ -50,7 +53,7 @@ else
   end
 end
 
-#The verticadba group is setup for public key auth, via the standard auth mechanism, ie authorised_groups attribute and ssh data bag
+#The verticadba group is setup for public key auth, via the hp public cloud auth mechanism, ie authorised_groups attribute and ssh data bag
 #though note that the group must exist first so the first run makes the group the 2nd sets up the authorized_keys file.
 group node[:vertica][:dbadmin_group] do
   action :create
