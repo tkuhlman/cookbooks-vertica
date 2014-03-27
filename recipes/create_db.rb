@@ -11,7 +11,7 @@ bash 'create_mon_db' do
   EOH
 end
 
-%w[ mon_grants.sql mon_schema.sql mon_metrics_schema.sql mon_users.sql ].each do |filename|
+%w[ mon_grants.sql mon_schema.sql mon_metrics_schema.sql mon_alarms_schema.sql mon_users.sql ].each do |filename|
   cookbook_file "/var/vertica/#{filename}" do
     action :create
     source filename
