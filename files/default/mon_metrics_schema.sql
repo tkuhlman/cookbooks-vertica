@@ -5,33 +5,33 @@ CREATE SCHEMA MonMetrics;
 
 CREATE TABLE MonMetrics.Measurements (
     id AUTO_INCREMENT,
-    definition_header_id BINARY(20) NOT NULL,
-    dimension_id BINARY(20) NOT NULL,
+    definition_dimensions_id BINARY(20) NOT NULL,
     time_stamp TIMESTAMP NOT NULL,
     value FLOAT NOT NULL,
     PRIMARY KEY(id)
 ) PARTITION BY EXTRACT('year' FROM time_stamp)*10000 + EXTRACT('month' FROM time_stamp)*100 + EXTRACT('day' FROM time_stamp);
 
-CREATE TABLE MonMetrics.Definition_Headers (
+CREATE TABLE MonMetrics.Definitions(
     id BINARY(20) NOT NULL,
     name VARCHAR NOT NULL,
     tenant_id VARCHAR(14) NOT NULL,
     region VARCHAR NOT NULL,
     PRIMARY KEY(id),
-    CONSTRAINT MetricsDefinitionHeadersConstraint UNIQUE(id, name, tenant_id, region)
+    CONSTRAINT MetricsDefinitionsConstraint UNIQUE(name, tenant_id, region)
 );
 
 CREATE TABLE MonMetrics.Dimensions (
-    id BINARY(20) NOT NULL,
+    dimension_set_id BINARY(20) NOT NULL,
     name VARCHAR NOT NULL,
     value VARCHAR NOT NULL,
-    CONSTRAINT MetricsDimensionsConstraint UNIQUE(id, name, value)
+    CONSTRAINT MetricsDimensionsConstraint UNIQUE(dimension_set_id, name, value)
 );
 
-CREATE TABLE MonMetrics.Definitions (
-    definition_header_id BINARY(20) NOT NULL,
-    dimension_id BINARY(20) NOT NULL,
-    CONSTRAINT MetricsDefinitionsConstraint UNIQUE(definition_header_id, dimension_id)
+CREATE TABLE MonMetrics.DefinitionDimensions (
+    id BINARY(20) NOT NULL,
+    definition_id BINARY(20) NOT NULL,
+    dimension_set_id BINARY(20) NOT NULL,
+    CONSTRAINT MetricsDefinitionDimensionsConstraint UNIQUE(definition_id, dimension_set_id)
  );
 
 -- Projections
@@ -40,20 +40,17 @@ CREATE TABLE MonMetrics.Definitions (
 CREATE PROJECTION Measurements_DBD_1_rep_MonMetrics /*+createtype(D)*/
 (
  id ENCODING AUTO, 
- definition_header_id ENCODING RLE,
- dimension_id ENCODING RLE, 
+ definition_dimensions_id ENCODING RLE,
  time_stamp ENCODING DELTAVAL, 
  value ENCODING AUTO
 )
 AS
  SELECT id, 
-        definition_header_id,
-        dimension_id, 
+        definition_dimensions_id, 
         time_stamp, 
         value
  FROM MonMetrics.Measurements 
- ORDER BY definition_header_id,
-          dimension_id,
+ ORDER BY definition_dimensions_id,
           time_stamp,
           id
 UNSEGMENTED ALL NODES;
@@ -77,19 +74,35 @@ AS
           name
 UNSEGMENTED ALL NODES;
 
-CREATE PROJECTION Dimensions_DBD_4_rep_MonMetrics /*+createtype(D)*/
+CREATE PROJECTION Dimensions_DBD_3_rep_MonMetrics /*+createtype(D)*/
 (
  id ENCODING RLE, 
  name ENCODING AUTO, 
  value ENCODING AUTO
 )
 AS
- SELECT id, 
+ SELECT dimension_set_id, 
         name, 
         value
  FROM MonMetrics.Dimensions 
- ORDER BY id,
+ ORDER BY dimension_set_id,
           name
 UNSEGMENTED ALL NODES;
 
-select refresh('MonMetrics.Measurements, MonMetrics.Definition_headers, MonMetrics.Dimensions, MonMetrics.Definitions');
+CREATE PROJECTION DefinitionDimensions_DBD_4_rep_MonMetrics /*+createtype(D)*/
+(
+ id ENCODING RLE, 
+ definition_id,
+ dimension_set_id
+)
+AS
+ SELECT id, 
+        definition_id, 
+        dimension_set_id
+ FROM MonMetrics.DefinitionDimensions 
+ ORDER BY definition_id,
+          dimension_set_id,
+          id
+UNSEGMENTED ALL NODES;
+
+select refresh('MonMetrics.Measurements, MonMetrics.Definitions, MonMetrics.Dimensions, MonMetrics.DefinitionDimensions');
