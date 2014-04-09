@@ -1,10 +1,11 @@
 CREATE SCHEMA MonAlarms;
 
 CREATE TABLE MonAlarms.StateHistory(
-    state_id AUTO_INCREMENT,
+    id AUTO_INCREMENT,
     tenant_id VARCHAR,
     alarm_id VARCHAR,
     alarm_name VARCHAR,
+    alarm_description VARCHAR,
     old_state VARCHAR,
     new_state VARCHAR,
     reason VARCHAR,
