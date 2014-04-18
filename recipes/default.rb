@@ -3,9 +3,9 @@
 # If the nodes data bag exists consider this a cluster
 # !! Todo - right now this is not using the hp_common_functions but the recipe itself its.
 if Chef::Config[:solo]
-  node[:vertica][:is_standalone] = true
+  node.default[:vertica][:is_standalone] = true
 else
-  node[:vertica][:is_standalone] = search(:vertica, 'id:nodes*').empty?
+  node.default[:vertica][:is_standalone] = search(:vertica, 'id:nodes*').empty?
 end
 
 # Prep for installation
