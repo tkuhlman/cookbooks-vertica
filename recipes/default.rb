@@ -35,8 +35,18 @@ service 'vertica_agent' do
   supports :status => true, :restart => true
 end
 
-#The verticad daemon will fail startup until it has a valid database. As this cookbook does not setup a db I enable it only
-#Upon database setup it will be started by the vertica admintools
+#The verticad daemon will fail startup until it has a valid database, so startup is done with db creation
+if node[:os_version] =~ /hlinux/  # in hLinux ntpd = ntp
+  package 'ntp' do
+    action :install
+  end
+  bash 'change ntpd in vertica init' do
+    action :run
+    code 'cp /opt/vertica/sbin/verticad /opt/vertica/sbin/verticad-dist && sed s/ntpd/ntp/g /opt/vertica/sbin/verticad-dist > /opt/vertica/sbin/verticad'
+    not_if do ::File.exists?('/opt/vertica/sbin/verticad-dist') end
+  end
+end
+
 service 'verticad' do
   action :enable
   supports :status => true, :restart => true
