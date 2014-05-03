@@ -6,7 +6,7 @@ CREATE TABLE MonAlarms.StateHistory(
     alarm_id VARCHAR,
     old_state VARCHAR,
     new_state VARCHAR,
-    reason VARCHAR,
-    reason_data VARCHAR,
+    reason VARCHAR(65000),
+    reason_data VARCHAR(65000),
     time_stamp TIMESTAMP NOT NULL
 ) PARTITION BY EXTRACT('year' FROM time_stamp)*10000 + EXTRACT('month' FROM time_stamp)*100 + EXTRACT('day' FROM time_stamp);
