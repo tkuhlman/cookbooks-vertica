@@ -11,14 +11,33 @@ end
 # Prep for installation
 include_recipe 'vertica::node_dependencies'
 
-package "vertica" do
-  action :install
-  version node[:vertica][:version]
-end
+# For chef solo it is assumed there is not setup apt repo with the vertica packages but rather they are in /vagrant
+if Chef::Config[:solo]
+  dpkg_package "vertica" do
+    action :install
+    source "/vagrant/vertica_#{node[:vertica][:version]}_amd64.deb"
+    version node[:vertica][:version]
+  end
 
-package "vertica-R-lang" do
-  action :install
-  version node[:vertica][:r_version]
+  package "libgfortran3" do
+    action :install
+  end
+    
+  dpkg_package "vertica-R-lang" do
+    action :install
+    source "/vagrant/vertica-R-lang_#{node[:vertica][:r_version]}_amd64.deb"
+    version node[:vertica][:r_version]
+  end
+else
+  package "vertica" do
+    action :install
+    version node[:vertica][:version]
+  end
+
+  package "vertica-R-lang" do
+    action :install
+    version node[:vertica][:r_version]
+  end
 end
 
 # Static configuration common to all nodes in any cluster
