@@ -25,7 +25,7 @@ if Chef::Config[:solo]
     
   dpkg_package "vertica-R-lang" do
     action :install
-    source "/vagrant/vertica-R-lang_#{node[:vertica][:r_version]}_amd64.deb"
+    source "/vagrant/vertica-r-lang_#{node[:vertica][:version]}_amd64.deb"
     version node[:vertica][:r_version]
   end
 else
