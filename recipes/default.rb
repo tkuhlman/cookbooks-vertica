@@ -1,11 +1,10 @@
 # Setup a vertica node
 
 # If the nodes data bag exists consider this a cluster
-# !! Todo - right now this is not using the hp_common_functions but the recipe itself its.
-if Chef::Config[:solo]
-  node.default[:vertica][:is_standalone] = true
+if node.default[:vertica][:cluster_name] == '' and search(:vertica, 'id:nodes*').empty?
+  node.default[:vertica][:standalone] = true
 else
-  node.default[:vertica][:is_standalone] = search(:vertica, 'id:nodes*').empty?
+  node.default[:vertica][:standalone] = false
 end
 
 # Prep for installation
@@ -79,6 +78,6 @@ unless Chef::Config[:solo] # Since chef solo is mostly vagrant no backup is incl
   include_recipe 'vertica::backup'
 end
 
-if Chef::Config[:solo]
+if node.default[:vertica][:standalone]
   include_recipe 'vertica::create_db'
 end

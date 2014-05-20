@@ -26,7 +26,7 @@ file "#{node[:vertica][:dbadmin_home]}/.ssh/config" do #Turn off strict host key
   content "StrictHostKeyChecking no"
 end
 
-if node[:vertica][:is_standalone]
+if node[:vertica][:standalone]
   bash 'create ssh key' do
     action :run
     code <<-EOH
@@ -37,12 +37,8 @@ if node[:vertica][:is_standalone]
     not_if do ::File.exists?("#{node[:vertica][:dbadmin_home]}/.ssh/id_rsa") end
   end
 else
-  #Pull the ssh_key from the edb leveraging normalize to make sure it exists as a string.
-  #Note: That though this can be different by location, the openssh data bag which sets up the authorized keys does not
-  #yet support the get_data_bag_* functions so a shared key is used for all environments
-  ssh_key = normalize(get_data_bag_item("vertica", "ssh_key", { :encrypted => true}), {
-    :key => { :required => true, :typeof => String }
-  })[:key]
+  #Pull the ssh_key from an edb
+  ssh_key = data_bag_item("vertica", "ssh_key#{node[:vertica][:cluster_name]}")['key']
 
   file "#{node[:vertica][:dbadmin_home]}/.ssh/id_rsa" do #The private ssh_key
     action :create
@@ -59,7 +55,6 @@ group node[:vertica][:dbadmin_group] do
   action :create
   members node[:vertica][:dbadmin_user]
 end
-
 
 #Setup user based config in vertica
 directory "/opt/vertica/config/users/#{node[:vertica][:dbadmin_user]}" do

@@ -57,13 +57,7 @@ if Chef::Config[:solo] or search(:vertica, 'id:license*').empty?
     source 'community_license.key'
   end
 else
-  if Chef::Config[:solo] # Leaving the use of hp_common_functions for non-chef solo
-    license_key = data_bag_item(:vertica, :license)[:key]
-  else
-    license_key = normalize(get_data_bag_item("vertica", "license#{node[:vertica][:cluster_name]}", { :encrypted => true}), {
-      :key => { :required => true, :typeof => String }
-    })[:key]
-  end
+  license_key = data_bag_item(:vertica, :license)[:key]
 
   file "#{vconfig_dir}/share/license.key" do
     action :create
@@ -103,11 +97,9 @@ if Chef::Config[:solo] or search(:vertica, 'id:agent_ssl*').empty?
     source "default_agent.pem"
   end
 else
-  agent_ssl = normalize(get_data_bag_item("vertica", "agent_ssl#{node[:vertica][:cluster_name]}", { :encrypted => true}), {
-    :key => { :required => true, :typeof => String }, :cert => { :required => true, :typeof => String }
-  })
-  agent_key = agent_ssl[:key]
-  agent_cert = agent_ssl[:cert]
+  agent_ssl = data_bag_item("vertica", "agent_ssl#{node[:vertica][:cluster_name]}")
+  agent_key = agent_ssl['key']
+  agent_cert = agent_ssl['cert']
 
   file "#{vconfig_dir}/share/agent.key" do
     action :create
@@ -154,11 +146,9 @@ if Chef::Config[:solo] or search(:vertica, 'id:server_ssl*').empty?
     source "default_server.crt"
   end
 else
-  server_ssl = normalize(get_data_bag_item("vertica", "server_ssl#{node[:vertica][:cluster_name]}", { :encrypted => true}), {
-    :key => { :required => true, :typeof => String }, :cert => { :required => true, :typeof => String }
-  })
-  server_key = server_ssl[:key]
-  server_cert = server_ssl[:cert]
+  server_ssl = data_bag_item("vertica", "server_ssl#{node[:vertica][:cluster_name]}")
+  server_key = server_ssl['key']
+  server_cert = server_ssl['cert']
 
   file "#{node[:vertica][:catalog_dir]}/server.key" do
     action :create
