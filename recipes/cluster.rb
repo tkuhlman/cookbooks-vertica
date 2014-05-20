@@ -49,38 +49,41 @@ unless node[:vertica][:standalone]
     end
   end
 
-  # Setup eth1 as the cluster interface, first setup interfaces.d then eth1
-  directory "/etc/network/interfaces.d" do
-    action :create
-    owner 'root'
-    group 'root'
-    mode '775'
-  end
+  if node[:vertica][:cluster_interface] != ''
+    # Setup eth1 as the cluster interface, first setup interfaces.d then eth1
+    directory "/etc/network/interfaces.d" do
+      action :create
+      owner 'root'
+      group 'root'
+      mode '775'
+    end
 
-  execute "echo 'source /etc/network/interfaces.d/*' >> /etc/network/interfaces" do
-    action :run
-    user 'root'
-    not_if "grep 'source /etc/network/interfaces.d/*' /etc/network/interfaces"
-  end
+    execute "echo 'source /etc/network/interfaces.d/*' >> /etc/network/interfaces" do
+      action :run
+      user 'root'
+      not_if "grep 'source /etc/network/interfaces.d/*' /etc/network/interfaces"
+    end
 
-  execute 'ifup eth1' do
-    action :nothing
-    user 'root'
-  end
+    execute "ifup" do
+      command "ifup #{node[:vertica][:cluster_interface]}"
+      action :nothing
+      user 'root'
+    end
 
-  template "/etc/network/interfaces.d/vertica_cluster" do
-    action :create
-    owner 'root'
-    group 'root'
-    mode "644"
-    source "cluster_interface.erb"
-    variables(
-      :ip => local_net[:ip],
-      :broadcast => local_net[:broadcast],
-      :netmask => local_net[:netmask],
-      :network => local_net[:network],
-      :routes => local_net[:routes]
-    )
-    notifies :run, "execute[ifup eth1]"
+    template "/etc/network/interfaces.d/vertica_cluster" do
+      action :create
+      owner 'root'
+      group 'root'
+      mode "644"
+      source "cluster_interface.erb"
+      variables(
+        :ip => local_net[:ip],
+        :broadcast => local_net[:broadcast],
+        :netmask => local_net[:netmask],
+        :network => local_net[:network],
+        :routes => local_net[:routes]
+      )
+      notifies :run, "execute[ifup]"
+    end
   end
 end

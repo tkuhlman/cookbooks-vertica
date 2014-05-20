@@ -1,5 +1,5 @@
-auto eth1
-iface eth1 inet static
+auto <%= node[:vertica][:cluster_interface] %>
+iface <%= node[:vertica][:cluster_interface] %> inet static
   address <%= @ip %>
   netmask <%= @netmask %>
   network <%= @network %>

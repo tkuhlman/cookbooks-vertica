@@ -21,6 +21,10 @@ To run as cluster the nodes data bag item must exist otherwise it will come up s
     vertica this is very unlikely so I have stuck with the simpler setup of specifying nodes in a data bag and assuming
     all nodes have the Vertica-Node role applied.
   - The backup template currently assumes 5 nodes though it could be modified to be more flexible.
+  - If chef solo is being used a number of assumptions are made including:
+    - Vertica Community edition is being used, ie no license
+    - Insecure ssl certs are used.
+    - No backup is done
 
 ###Required setup:
   - data bag items in the vertica data bag that are specific to both the cluster and location.
@@ -28,17 +32,16 @@ To run as cluster the nodes data bag item must exist otherwise it will come up s
     - nodes - lists nodes in the cluster and the secondary interface settings
     - license - A data bag the license key, without this it will come up unlicensed
     - agent_ssl - A data bag the agent public and private keys, without this it will come up with a generic self signed cert
-    - agent_ssl - A data bag the server public and private keys, without this it will come up with a generic self signed cert
-  - Ssh setup for the dbadmin user, including:
-    - ssh databag for the dbadmin_group
-    - ssh_keys data bag for the dbadmin user
-    - ssh_key in the vertica data bag
+    - server_ssl - A data bag the server public and private keys, without this it will come up with a generic self signed cert
+    - ssh_key - A data bag with a public/private ssh key pair used for setting up the dbadmin user with ssh access between nodes
 
 ###Optional Setup:
+  - define the `node[:vertica][:cluster_interface]` to setup a network interface for cluster communication
   - If the ossec cookbook is available ossec rules are loaded
   - If the vertica_client::python recipe is in the run list monitoring can be setup
   - The backup scripts are not installed for chef-solo
   - Add the management console to a box by running the console recipe. It serves https on port 5450
+  - The kernel params for the deadline IO scheduler will be set if the system cookbook is included otherwise a different mechanism should be pursued.
 
 #Attributes
   - cluster_name is set to an empty string by default if you wish more than one cluster per AZ this attribute can be set for additional clusters.
@@ -48,9 +51,3 @@ To run as cluster the nodes data bag item must exist otherwise it will come up s
   - Each cluster must have a nodes data bag which should contain a nodes attribute which is a hash where the key is
     the fqdn and the value the network information for the secondary interface. If the secondary interfaces are in different
     vlans route information must be provided.
-
-# Future Considerations
-  - This cookbook was originally setup for the HPCS environment and includes various bits specific to that env still.
-    In the future should these be completely removed?
-    - The entire ssh key setup in recipes/node_users
-    - system cookbook that sets grub boot params

@@ -47,7 +47,7 @@ cookbook_file "#{vconfig_dir}/d5415f948449e9d4c421b568f2411140.dat" do
   mode "775"
 end
 
-# The license
+# The license - It is assumed with chef solo that community edition is being used
 if Chef::Config[:solo] or search(:vertica, 'id:license*').empty?
   cookbook_file "#{vconfig_dir}/share/license.key" do
     action :create
@@ -58,7 +58,6 @@ if Chef::Config[:solo] or search(:vertica, 'id:license*').empty?
   end
 else
   license_key = data_bag_item(:vertica, :license)[:key]
-
   file "#{vconfig_dir}/share/license.key" do
     action :create
     owner node[:vertica][:dbadmin_user]
@@ -70,7 +69,7 @@ end
 
 ## SSL key
 # The process for creation of the key is in the ssl_key_gen function in /opt/vertica/bin/verticaInstall.py
-# After the install script the pem and key file are only on the primary, I distribute to all boxes
+# After the install script the pem and key file are only on the primary, this distributes to all boxes
 if Chef::Config[:solo] or search(:vertica, 'id:agent_ssl*').empty?
   log "Using insecure default agent ssl certificate and key" do
     level :warn

@@ -37,20 +37,25 @@ if node[:vertica][:standalone]
     not_if do ::File.exists?("#{node[:vertica][:dbadmin_home]}/.ssh/id_rsa") end
   end
 else
-  #Pull the ssh_key from an edb
-  ssh_key = data_bag_item("vertica", "ssh_key#{node[:vertica][:cluster_name]}")['key']
+  #Pull the ssh_key from a data bag
+  ssh_key = data_bag_item("vertica", "ssh_key#{node[:vertica][:cluster_name]}")
 
   file "#{node[:vertica][:dbadmin_home]}/.ssh/id_rsa" do #The private ssh_key
     action :create
     owner node[:vertica][:dbadmin_user]
     group node[:vertica][:dbadmin_user]
     mode "600"
-    content ssh_key
+    content ssh_key['private']
+  end
+  file "#{node[:vertica][:dbadmin_home]}/.ssh/authorized_keys" do #The public ssh_key
+    action :create
+    owner node[:vertica][:dbadmin_user]
+    group node[:vertica][:dbadmin_user]
+    mode "644"
+    content ssh_key['public']
   end
 end
 
-#The verticadba group is setup for public key auth, via the hp public cloud auth mechanism, ie authorised_groups attribute and ssh data bag
-#though note that the group must exist first so the first run makes the group the 2nd sets up the authorized_keys file.
 group node[:vertica][:dbadmin_group] do
   action :create
   members node[:vertica][:dbadmin_user]
