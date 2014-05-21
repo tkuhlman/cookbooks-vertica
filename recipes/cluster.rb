@@ -4,19 +4,19 @@
 vconfig_dir = '/opt/vertica/config' #This is set by the vertica package
 
 #Pull cluster node information, used by many resources in this recipe
-if node[:vertica][:standalone]
-  nodes = { :localhost => {
-      :ip => '127.0.0.1',
-      :broadcast => '127.255.255.255',
-      :network => '127.0.0.0',
-      :netmask => '255.0.0.0',
-    } 
-  }
-  local_net = nodes[:localhost]
-else
+if node[:vertica][:cluster]
   nodes = data_bag_item("vertica", "nodes#{node[:vertica][:cluster_name]}")['nodes']
   local_cluster_name = nodes.keys.select { |node_name| node_name.include? node['hostname'] }[0]
   local_net = nodes[local_cluster_name]
+else
+  nodes = { :localhost => {
+      'ip' => '127.0.0.1',
+      'broadcast' => '127.255.255.255',
+      'network' => '127.0.0.0',
+      'netmask' => '255.0.0.0'
+    } 
+  }
+  local_net = nodes[:localhost]
 end
 
 ips = []
@@ -37,7 +37,7 @@ template "#{vconfig_dir}/admintools.conf" do
   )
 end
 
-unless node[:vertica][:standalone]
+if node[:vertica][:cluster]
   # Setup the /etc/hosts file on each box, each box in the cluster should know about the others and itself.
   # The hosts/ips setup are for the internal cluster communication
   nodes.each do |fqdn, info|

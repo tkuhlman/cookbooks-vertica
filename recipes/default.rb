@@ -1,12 +1,5 @@
 # Setup a vertica node
 
-# If the nodes data bag exists consider this a cluster
-if node.default[:vertica][:cluster_name] == '' and search(:vertica, 'id:nodes*').empty?
-  node.default[:vertica][:standalone] = true
-else
-  node.default[:vertica][:standalone] = false
-end
-
 # Prep for installation
 include_recipe 'vertica::node_dependencies'
 
@@ -78,6 +71,6 @@ unless Chef::Config[:solo] # Since chef solo is mostly vagrant no backup is incl
   include_recipe 'vertica::backup'
 end
 
-if node.default[:vertica][:standalone]
+unless node.default[:vertica][:cluster]
   include_recipe 'vertica::create_db'
 end

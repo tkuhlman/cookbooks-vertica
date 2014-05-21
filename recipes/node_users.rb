@@ -26,17 +26,7 @@ file "#{node[:vertica][:dbadmin_home]}/.ssh/config" do #Turn off strict host key
   content "StrictHostKeyChecking no"
 end
 
-if node[:vertica][:standalone]
-  bash 'create ssh key' do
-    action :run
-    code <<-EOH
-    ssh-keygen -t rsa -b 2048 -f #{node[:vertica][:dbadmin_home]}/.ssh/id_rsa -q -N '' 
-    cp #{node[:vertica][:dbadmin_home]}/.ssh/id_rsa.pub #{node[:vertica][:dbadmin_home]}/.ssh/authorized_keys
-    EOH
-    user node[:vertica][:dbadmin_user]
-    not_if do ::File.exists?("#{node[:vertica][:dbadmin_home]}/.ssh/id_rsa") end
-  end
-else
+if node[:vertica][:cluster]
   #Pull the ssh_key from a data bag
   ssh_key = data_bag_item("vertica", "ssh_key#{node[:vertica][:cluster_name]}")
 
@@ -53,6 +43,16 @@ else
     group node[:vertica][:dbadmin_user]
     mode "644"
     content ssh_key['public']
+  end
+else
+  bash 'create ssh key' do
+    action :run
+    code <<-EOH
+    ssh-keygen -t rsa -b 2048 -f #{node[:vertica][:dbadmin_home]}/.ssh/id_rsa -q -N '' 
+    cp #{node[:vertica][:dbadmin_home]}/.ssh/id_rsa.pub #{node[:vertica][:dbadmin_home]}/.ssh/authorized_keys
+    EOH
+    user node[:vertica][:dbadmin_user]
+    not_if do ::File.exists?("#{node[:vertica][:dbadmin_home]}/.ssh/id_rsa") end
   end
 end
 

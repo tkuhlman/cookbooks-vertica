@@ -9,7 +9,7 @@ nothing that triggers a service restart.
 
 All entries into this cookbook should be via the default or console recipe, others are for organization only.
 
-To run as cluster the nodes data bag item must exist otherwise it will come up stand alone.
+To run as cluster set the `node[:vertica][:cluster'] = true`
 
 ##Cluster Assumptions:
   - The nodes are dual homed with eth1 being the cluster interface. Proper UFW setup depends on this.

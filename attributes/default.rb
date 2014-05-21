@@ -1,4 +1,5 @@
-##Cluster Setup
+##Cluster Setup - defaults to standalone
+node.default[:vertica][:cluster] = false
 node.default[:vertica][:cluster_name] = ''
 
 ## Node Setup
