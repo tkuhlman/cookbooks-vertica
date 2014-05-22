@@ -24,6 +24,6 @@ fi
 /opt/vertica/bin/admintools -t set_restart_policy -d mon -p always
 
 # For ssl support link the cert/key and restart the db
-ln /var/vertica/catalog/server* /var/vertica/catalog/mon/v*/
+ln /var/vertica/server* /var/vertica/catalog/mon/v*/
 /opt/vertica/bin/admintools -t stop_db -F -p password -d mon
 /opt/vertica/bin/admintools -t start_db -p password -d mon

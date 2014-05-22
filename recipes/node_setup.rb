@@ -124,20 +124,20 @@ else
 end
 
 # SOM DB ssl cert, this is the cert clients see when connecting, the certs for each zone come from the security team
-# Vertica actually requires it in the db specific dir but it is not created until after the db so I put them in the root
-# catalog dir and link later after db creation
+# Vertica actually requires it in the db specific dir but it is not created until after the db so I put them in the parent
+# of the catalog dir (being in the catalog dir causes complaint from vertica 7) and link later after db creation.
 if Chef::Config[:solo] or search(:vertica, 'id:server_ssl*').empty?
   log "Using insecure default database ssl certificate and key" do
     level :warn
   end
-  cookbook_file "#{node[:vertica][:catalog_dir]}/server.key" do
+  cookbook_file "#{node[:vertica][:catalog_dir]}/../server.key" do
     action :create_if_missing
     owner node[:vertica][:dbadmin_user]
     group node[:vertica][:dbadmin_group]
     mode "400"
     source "default_server.key"
   end
-  cookbook_file "#{node[:vertica][:catalog_dir]}/server.crt" do
+  cookbook_file "#{node[:vertica][:catalog_dir]}/../server.crt" do
     action :create_if_missing
     owner node[:vertica][:dbadmin_user]
     group node[:vertica][:dbadmin_group]
@@ -149,14 +149,14 @@ else
   server_key = server_ssl['key']
   server_cert = server_ssl['cert']
 
-  file "#{node[:vertica][:catalog_dir]}/server.key" do
+  file "#{node[:vertica][:catalog_dir]}/../server.key" do
     action :create
     owner node[:vertica][:dbadmin_user]
     group node[:vertica][:dbadmin_group]
     mode "400"
     content server_key
   end
-  file "#{node[:vertica][:catalog_dir]}/server.crt" do
+  file "#{node[:vertica][:catalog_dir]}/../server.crt" do
     action :create
     owner node[:vertica][:dbadmin_user]
     group node[:vertica][:dbadmin_group]
