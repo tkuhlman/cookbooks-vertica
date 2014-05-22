@@ -71,6 +71,6 @@ unless Chef::Config[:solo] # Since chef solo is mostly vagrant no backup is incl
   include_recipe 'vertica::backup'
 end
 
-unless node.default[:vertica][:cluster]
+unless node[:vertica][:cluster]
   include_recipe 'vertica::create_db'
 end
