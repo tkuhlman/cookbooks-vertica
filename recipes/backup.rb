@@ -26,7 +26,7 @@ directory node[:vertica][:backup_dir] do
 end
 
 snapshot_name = node[:domain].gsub('.', '_') + "_#{creds['dbname']}"
-if node[:hostname] == nodes.keys[0] # cron runs at least 1 hour before on the box which runs vbr
+if node[:fqdn] == nodes.keys[0] # cron runs at least 1 hour before on the box which runs vbr
   run_hour = '3'
   run_vbr = true
 else
