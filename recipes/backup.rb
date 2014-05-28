@@ -2,10 +2,11 @@
 # The config and setup goes on each vertica node but only one is actually activated to run the job, it starts the job on the others
 # This is so the backup is consistent across all 5 nodes and is a core assumption of the vbr tool
 
+include_recipe "python"
 require 'zlib'
 
-package 'vertica-utils' do
-  action :upgrade
+python_pip 'vertica-swift-backup' do
+  action :install
 end
 
 ## Pull the data bags
@@ -25,7 +26,7 @@ directory node[:vertica][:backup_dir] do
 end
 
 snapshot_name = node[:domain].gsub('.', '_') + "_#{creds['dbname']}"
-if node[:hostname]  =~ /az2-vertica0002/ # cron runs on the box which does the vbr command at least 1 hour before the rsyncs
+if node[:hostname] == nodes.keys[0] # cron runs at least 1 hour before on the box which runs vbr
   run_hour = '3'
   run_vbr = true
 else
@@ -66,27 +67,10 @@ template "/opt/vertica/config/#{creds['dbname']}_backup.ini" do
   )
 end
 
-# In order for the dbadmin_user to run the backup job and report to icinga it must be in the nagios group
-group 'nagios' do
-  action :modify
-  members node[:vertica][:dbadmin_user]
-  append true
-end
-
-# The cronjob is not setup via the standard mechanism for nsca so I can use a specific time
-# but it still relies on monitoring's nsca_wrapper and that the params match the icinga setup in attributes/backup.rb
-nsca_wrapper = "/usr/local/bin/nsca_wrapper" #Provided by the monitoring roles
-
-if node[:continent] == 'dev'  # Fake backups for dev
-  backup_command = "#{nsca_wrapper} -C 'echo No backups done in development' -S 'vertica_backup' -H #{node[:fqdn]}"
-else
-  backup_command = "#{nsca_wrapper} -C '/usr/bin/vertica_backup /opt/vertica/config/#{creds[:dbname]}_backup.yaml' -S 'vertica_backup' -H #{node[:fqdn]}"
-end
-
 cron 'vertica_backup' do
   action :create
   user node[:vertica][:dbadmin_user]
   hour run_hour
   minute Zlib.crc32(node[:fqdn]) % 60
-  command backup_command
+  command "/usr/bin/vertica_backup /opt/vertica/config/#{creds[:dbname]}_backup.yaml"
 end
