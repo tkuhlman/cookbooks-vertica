@@ -10,6 +10,7 @@ retain: <%= node[:vertica][:backup_retain] %>
 warning: <%= node[:vertica][:backup_warn_threshold] %> # Alert if backup takes longer than warning minutes
 
 swift_key: <%= @swift_key %>
+swift_region: <%= @swift_region %>
 swift_tenant: <%= @swift_tenant %>
 swift_url: <%= @url %>
 swift_user: <%= @swift_user %>

@@ -48,6 +48,7 @@ template "/opt/vertica/config/#{creds['dbname']}_backup.yaml" do
     :swift_tenant => creds['swift_tenant'],
     :swift_key => creds['swift_key'],
     :url => creds['url'],
+    :swift_region => creds['swift_region'],
     :vbr_config => "/opt/vertica/config/#{creds['dbname']}_backup.ini"
   )
 end

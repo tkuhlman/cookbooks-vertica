@@ -67,10 +67,6 @@ if node.recipes.include?('vertica_client::python')
   include_recipe 'vertica::monitor'
 end
 
-unless Chef::Config[:solo] # Since chef solo is mostly vagrant no backup is included
-  include_recipe 'vertica::backup'
-end
-
 unless node[:vertica][:cluster]
   include_recipe 'vertica::create_db'
 end

@@ -7,7 +7,10 @@ need to be made in the data bags for a cluster. As a result the cookbook is setu
 to tracked files and to not track many of the files created by Vertica during database setup. Additionally there is
 nothing that triggers a service restart.
 
-All entries into this cookbook should be via the default or console recipe, others are for organization only.
+Many recipes are for organization the entry points are:
+- default
+- backup
+- console
 
 To run as cluster set the `node[:vertica][:cluster'] = true`
 
@@ -20,11 +23,9 @@ To run as cluster set the `node[:vertica][:cluster'] = true`
     properly in a situation of adding/removing nodes is not trivial. Additionally given the hardware requirements of
     vertica this is very unlikely so I have stuck with the simpler setup of specifying nodes in a data bag and assuming
     all nodes have the Vertica-Node role applied.
-  - The backup template currently assumes 5 nodes though it could be modified to be more flexible.
   - If chef solo is being used a number of assumptions are made including:
     - Vertica Community edition is being used, ie no license
     - Insecure ssl certs are used.
-    - No backup is done
 
 ###Required setup:
   - data bag items in the vertica data bag that are specific to both the cluster and location.
@@ -39,8 +40,8 @@ To run as cluster set the `node[:vertica][:cluster'] = true`
   - define the `node[:vertica][:cluster_interface]` to setup a network interface for cluster communication
   - If the ossec cookbook is available ossec rules are loaded
   - If the vertica_client::python recipe is in the run list monitoring can be setup
-  - The backup scripts are not installed for chef-solo
   - Add the management console to a box by running the console recipe. It serves https on port 5450
+  - Include the backup recipe to install [vertica-swift-backup](https://github.com/tkuhlman/vertica-swift-backup)
   - The kernel params for the deadline IO scheduler will be set if the system cookbook is included otherwise a different mechanism should be pursued.
 
 #Attributes
