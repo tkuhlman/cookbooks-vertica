@@ -72,5 +72,5 @@ cron 'vertica_backup' do
   user node[:vertica][:dbadmin_user]
   hour run_hour
   minute Zlib.crc32(node[:fqdn]) % 60
-  command "/usr/bin/vertica_backup /opt/vertica/config/#{creds['dbname']}_backup.yaml"
+  command "/usr/local/bin/vertica_backup /opt/vertica/config/#{creds['dbname']}_backup.yaml"
 end
