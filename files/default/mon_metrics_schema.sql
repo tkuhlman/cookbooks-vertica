@@ -13,7 +13,7 @@ CREATE TABLE MonMetrics.Measurements (
 CREATE TABLE MonMetrics.Definitions(
     id BINARY(20) NOT NULL,
     name VARCHAR(255) NOT NULL,
-    tenant_id VARCHAR(32) NOT NULL,
+    tenant_id VARCHAR(40) NOT NULL,
     region VARCHAR(255) NOT NULL,
     PRIMARY KEY(id),
     CONSTRAINT MetricsDefinitionsConstraint UNIQUE(name, tenant_id, region)
