@@ -11,6 +11,7 @@ bash 'create_mon_db' do
   EOH
 end
 
+# Note: As projections based on k-safety are added this file list will need modification based on a clustered or not setup
 %w[ mon_grants.sql mon_schema.sql mon_metrics_schema.sql mon_alarms_schema.sql mon_users.sql ].each do |filename|
   cookbook_file "/var/vertica/#{filename}" do
     action :create
@@ -21,9 +22,15 @@ end
   end
 end
 
+if node.default[:vertica][:cluster]
+  setup_script = 'create_mon_db_cluster.sh'
+else
+  setup_script = 'create_mon_db.sh'
+end
+
 cookbook_file '/var/vertica/create_mon_db.sh' do
   action :create
-  source 'create_mon_db.sh'
+  source setup_script
   owner node[:vertica][:dbadmin_user]
   group node[:vertica][:dbadmin_group]
   mode "755"
