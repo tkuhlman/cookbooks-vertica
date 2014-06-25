@@ -7,23 +7,13 @@ include_recipe 'vertica::node_disks'
 vconfig_dir = '/opt/vertica/config' #This is set by the vertica package
 
 #Directory setup - a few of these are setup by the package but as root and they need to be owned by dbadmin
-directory vconfig_dir do
-  action :create
-  owner node[:vertica][:dbadmin_user]
-  group node[:vertica][:dbadmin_group]
-  mode '775'
-end
-directory '/opt/vertica/log' do
-  action :create
-  owner node[:vertica][:dbadmin_user]
-  group node[:vertica][:dbadmin_group]
-  mode '775'
-end
-directory "#{vconfig_dir}/share" do
-  action :create
-  owner node[:vertica][:dbadmin_user]
-  group node[:vertica][:dbadmin_group]
-  mode '775'
+[vconfig_dir, "#{vconfig_dir}/share", '/opt/vertica/log'].each do |dir|
+  directory dir do
+    action :create
+    owner node[:vertica][:dbadmin_user]
+    group node[:vertica][:dbadmin_group]
+    mode '775'
+  end
 end
 
 # init script inks to setup, the services are enabled in default.rb
@@ -74,26 +64,14 @@ if Chef::Config[:solo] or search(:vertica, 'id:agent_ssl*').empty?
   log "Using insecure default agent ssl certificate and key" do
     level :warn
   end
-  cookbook_file "#{vconfig_dir}/share/agent.key" do
-    action :create_if_missing
-    owner node[:vertica][:dbadmin_user]
-    group node[:vertica][:dbadmin_group]
-    mode "400"
-    source "default_agent.key"
-  end
-  cookbook_file "#{vconfig_dir}/share/agent.cert" do
-    action :create_if_missing
-    owner node[:vertica][:dbadmin_user]
-    group node[:vertica][:dbadmin_group]
-    mode "400"
-    source "default_agent.cert"
-  end
-  cookbook_file "#{vconfig_dir}/share/agent.pem" do
-    action :create_if_missing
-    owner node[:vertica][:dbadmin_user]
-    group node[:vertica][:dbadmin_group]
-    mode "400"
-    source "default_agent.pem"
+  ['agent.key', 'agent.cert', 'agent.pem'].each do |file|
+    cookbook_file "#{vconfig_dir}/share/#{file}" do
+      action :create_if_missing
+      owner node[:vertica][:dbadmin_user]
+      group node[:vertica][:dbadmin_group]
+      mode "400"
+      source "default_#{file}"
+    end
   end
 else
   agent_ssl = data_bag_item("vertica", "agent_ssl#{node[:vertica][:cluster_name]}")
