@@ -4,7 +4,7 @@ maintainer_email 'hpcs-mon@hp.com'
 license          'All rights reserved'
 description      'Installs/Configures vertica'
 long_description IO.read(File.join(File.dirname(__FILE__), 'README.md'))
-version          '1.1.11'
+version          '1.2.0'
 depends          'hostsfile'
 depends          'sysctl'
 depends          'python'  # Used for the backup recipe

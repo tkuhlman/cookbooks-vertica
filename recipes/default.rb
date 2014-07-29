@@ -66,8 +66,3 @@ end
 if node.recipes.include?('vertica_client::python')
   include_recipe 'vertica::monitor'
 end
-
-# The data setup will work on a cluster but must be run after the entire cluster is running and only on 1 node
-unless node[:vertica][:cluster]
-  include_recipe 'vertica::create_db'
-end

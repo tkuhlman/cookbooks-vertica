@@ -11,7 +11,6 @@ Many recipes are for organization the entry points are:
 - default
 - backup
 - console
-- create_db - This is run for non-clustered setups for clustered setups it should be run on 1 node after the cluster is running
 
 To run as cluster set the `node[:vertica][:cluster'] = true`
 
